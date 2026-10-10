@@ -1,0 +1,34 @@
+:root {
+  /* Colores */
+  --color-primary: #BE1522;
+  --color-background: #EEDDDD;
+  --color-text: #656565;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+
+  /* Tipografía */
+  --font-family: Arial, sans-serif;
+
+  /* Tamaños */
+  --font-size-small: 14px;
+  --font-size-normal: 16px;
+  --font-size-title: 24px;
+  --font-size-large: 32px;
+
+  /* Bordes */
+  --radius-small: 6px;
+  --radius-medium: 8px;
+  --radius-menu: 25px;
+
+  /* Espaciado */
+  --spacing-extrasmall: 4px;
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+
+
+  --sidebar-width: 220px;
+  --header-height: 90px;
+  --usuarios-toolbar-height: 64px;
+
+}

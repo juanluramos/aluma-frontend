@@ -1,11 +1,22 @@
 import { Outlet } from "react-router-dom";
+import './Layout.css';
+import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 function Layout() {
-  return (
-    <div>
-      <h1>LAYOUT FUNCIONA</h1>
 
-      <Outlet />
+    
+  return (
+    <div className="layout">
+      <Sidebar />
+
+      <div className="layout-content">
+        <Header />
+
+        <main>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,82 @@
+.header {
+  min-height: var(--header-height);
+  flex-wrap: wrap;
+  gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px var(--spacing-large);
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-white);
+  box-sizing: border-box;
+  font-family: var(--font-family);
+}
+
+.header-left h1 {
+  margin: 0 ;
+  color: var(--color-black);
+  font-size: var(--font-size-title);  
+}
+
+.header-left p {
+   margin: 0;
+   font-size: var(--font-size-small);
+    color: var(--color-text) 
+}
+
+.header-right {
+  color: var(--color-text);
+  font-size: var(--font-size-normal);
+  font-family: var(--font-family);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-small);
+  font-weight: bold;
+}
+
+.user-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  color: var(--color-text);
+  font-size: var(--font-size-normal);
+  font-weight: bold;
+}
+
+.user-role {
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+}
+
+.user-arrow {
+  margin-left: 8px;
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.header-right,
+.user-info {
+  flex-wrap: wrap;
+}

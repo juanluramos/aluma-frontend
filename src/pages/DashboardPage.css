@@ -1,0 +1,446 @@
+.dashboard-page {
+  padding: var(--spacing-large);
+}
+
+/* TARJETAS SUPERIORES */
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(180px, max-content)
+  );
+
+  gap: 16px 40px;
+  justify-content: start;
+}
+
+.dashboard-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+
+  padding: 12px 16px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+.dashboard-card h3 {
+  margin: 0;
+  font-size: var(--font-size-normal);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.dashboard-card p {
+  margin: 12px 0 0;
+  font-size: var(--font-size-large);
+  font-weight: 700;
+}
+
+.dashboard-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: var(--font-size-large);
+}
+
+.dashboard-card-icon img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.dashboard-card-content h3 {
+  margin: 0;
+  font-size: var(--font-size-normal);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.dashboard-card-number {
+  margin: var(--spacing-small) 0 0;
+  font-size: var(--font-size-large);
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.dashboard-card-content span {
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+/* FILA DE GRÁFICOS */
+
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-medium);
+
+  margin-top: var(--spacing-medium);
+}
+
+/* GRÁFICO DE ASISTENCIA */
+
+.attendance-chart {
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+  padding: var(--spacing-medium);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.attendance-chart h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-medium);
+
+  font-size: var(--font-size-normal);
+  color: var(--color-text);
+}
+
+/* GRÁFICO DE PAGOS */
+
+.payment-status-chart {
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+  padding: var(--spacing-medium);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.payment-status-chart h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-medium);
+
+  font-size: var(--font-size-normal);
+  color: var(--color-text);
+}
+
+/* GRÁFICO DE PAGOS */
+
+.payment-status-chart {
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+  padding: var(--spacing-medium);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.payment-status-chart h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-medium);
+
+  font-size: var(--font-size-normal);
+  color: var(--color-text);
+}
+
+/* Leyenda estado de pagos */
+
+.payment-status-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px 16px;
+  margin-top: 4px;
+}
+
+.payment-status-legend-item {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+.payment-status-legend-color {
+  display: inline-block;
+
+  width: 10px;
+  height: 10px;
+
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* FILA INFERIOR */
+
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-medium);
+
+  margin-top: var(--spacing-medium);
+}
+
+/* PRÓXIMAS ACTIVIDADES */
+
+.upcoming-activities {
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+  padding: 0 40px ;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.upcoming-activities h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-medium);
+  
+  font-size: var(--font-size-normal);
+  color: var(--color-text);
+}
+
+.upcoming-activity {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: var(--spacing-small) 0;
+
+  border-bottom: 1px solid #eeeeee;
+}
+
+.upcoming-activity:last-child {
+  border-bottom: none;
+}
+
+.upcoming-activity div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upcoming-activity strong {
+  font-size: var(--font-size-normal);
+  color: var(--color-black);
+}
+
+.upcoming-activity span {
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+/* PRONÓSTICO DEL TIEMPO */
+
+.weather-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+  padding: var(--spacing-medium);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.weather-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-small);
+}
+
+.weather-header h3 {
+  margin: 0;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-normal);
+  font-weight: 500;
+  line-height: 1.2;
+
+  color: var(--color-text);
+}
+
+.weather-dropdown {
+  position: relative;
+
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.weather-dropdown-button {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-normal);
+  font-weight: 500;
+  line-height: 1.2;
+
+  color: var(--color-text);
+
+  cursor: pointer;
+}
+
+.weather-dropdown-arrow {
+  font-size: 11px;
+  line-height: 1;
+
+  transition: transform 0.25s ease;
+}
+
+.weather-dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.weather-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+
+  min-width: 140px;
+
+  background-color: var(--color-white);
+
+  border-radius: var(--radius-small);
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(-8px);
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  z-index: 20;
+}
+
+.weather-dropdown-menu.open {
+  opacity: 1;
+  transform: translateY(0);
+
+  pointer-events: auto;
+}
+
+.weather-dropdown-option {
+  width: 100%;
+
+  padding: 8px 12px;
+
+  border: none;
+
+  background-color: transparent;
+
+  text-align: left;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.weather-dropdown-option:hover {
+  background-color: var(--color-background);
+}
+
+.weather-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-small);
+
+  margin-top: var(--spacing-medium);
+}
+
+.weather-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: var(--spacing-small);
+
+  border-radius: var(--radius-small);
+}
+
+.weather-day-name {
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.weather-icon {
+  font-size: 28px;
+}
+
+.weather-max {
+  font-size: var(--font-size-normal);
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.weather-min {
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+/* TABLET */
+
+@media (max-width: 1024px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-charts,
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* MÓVIL */
+
+@media (max-width: 600px) {
+  .dashboard-page {
+    padding: var(--spacing-medium);
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card {
+    padding: var(--spacing-medium);
+  }
+
+  .attendance-chart,
+  .payment-status-chart,
+  .upcoming-activities,
+  .weather-card {
+    padding: var(--spacing-small);
+  }
+
+  .weather-header {
+    flex-wrap: wrap;
+  }
+
+  .weather-days {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
