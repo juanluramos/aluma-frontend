@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   validarDni, validarNie, validarPasaporte, validarPermisoTrabajo,
   validarTelefono, validarEmail, validarPassword, validarCodigoUsuario,
-  validarNombre, validarDocumentoUsuario, validarUsuario, normalizarUsuario, type FormularioUsuario,
+  validarNombre, validarDocumentoUsuario, validarUsuario, validarCambioPassword, normalizarUsuario, type FormularioUsuario,
 } from '../src/utils/validacionesUsuario.ts';
 
 const formulario: FormularioUsuario = {
@@ -79,6 +79,14 @@ test('Contraseñas obligatorias solo al crear operador o administrador', () => {
   assert.equal(validarUsuario({ ...sinEmail, email: 'ana@ejemplo.test' }, 'create', { exigeEmail: true }).email, undefined);
   assert.deepEqual(validarUsuario(sinPassword, 'edit'), {});
   assert.ok(validarUsuario({ ...sinPassword, email: 'incorrecto' }, 'edit').email);
+});
+
+test('El perfil deja la contraseña igual si ambos campos van vacíos', () => {
+  assert.deepEqual(validarCambioPassword('', ''), {});
+  assert.deepEqual(validarCambioPassword('  ', '  '), {});
+  assert.equal(validarCambioPassword('Clave123', 'Clave123').password, undefined);
+  assert.ok(validarCambioPassword('clave123', 'clave123').password);
+  assert.equal(validarCambioPassword('Clave123', 'Otra1234').confirmPassword, 'Las contraseñas no coinciden.');
 });
 
 test('Editar una contraseña aplica las mismas reglas que crearla', () => {

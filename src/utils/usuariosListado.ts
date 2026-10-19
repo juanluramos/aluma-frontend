@@ -35,6 +35,32 @@ export function capitalizarTexto(valor: string): string {
   return texto.charAt(0).toLocaleUpperCase("es") + texto.slice(1).toLocaleLowerCase("es");
 }
 
+export type UsuarioSesion = {
+  id_usuario: number;
+  nombre: string;
+  apellido1: string | null;
+  apellido2: string | null;
+};
+
+function textoONulo(valor: unknown): string | null {
+  return typeof valor === "string" ? valor : null;
+}
+
+export function usuarioDeSesion(data: unknown, userId: number): UsuarioSesion | null {
+  if (!data || typeof data !== "object") return null;
+  const fila = data as Record<string, unknown>;
+  const id = Number(fila.id_usuario);
+  if (!Number.isSafeInteger(id) || id !== userId) return null;
+  const nombre = textoONulo(fila.nombre);
+  if (nombre === null || nombre.trim() === "") return null;
+  return {
+    id_usuario: id,
+    nombre,
+    apellido1: textoONulo(fila.apellido1),
+    apellido2: textoONulo(fila.apellido2),
+  };
+}
+
 export function nombreCompletoUsuario(usuario: {
   nombre: string;
   apellido1?: string | null;

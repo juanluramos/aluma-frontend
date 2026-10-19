@@ -5,6 +5,7 @@ import {
   eliminarUsuarioDeLista,
   filtrarUsuarios,
   nombreCompletoUsuario,
+  usuarioDeSesion,
   normalizarBusqueda,
   ordenarUsuarios,
   reemplazarUsuarioEnLista,
@@ -336,6 +337,14 @@ test('reemplazarUsuarioEnLista sustituye el usuario correcto y conserva el orden
   assert.equal(resultado[1]?.id_rol, 3);
   assert.equal(resultado[0]?.nombre, 'Uno');
   assert.equal(resultado[2]?.nombre, 'Tres');
+});
+
+test('el nombre de la sesión sale de la respuesta aunque el id llegue como texto', () => {
+  const sesion = usuarioDeSesion({ id_usuario: '15', nombre: 'juan', apellido1: 'LUIS', apellido2: null }, 15);
+  assert.equal(sesion?.id_usuario, 15);
+  assert.equal(nombreCompletoUsuario(sesion!), 'Juan Luis');
+  assert.equal(usuarioDeSesion({ id_usuario: 4, nombre: 'Ana' }, 15), null);
+  assert.equal(usuarioDeSesion({ id_usuario: 15, nombre: '   ' }, 15), null);
 });
 
 test('reemplazarUsuarioEnLista con ID inexistente no inserta usuarios', () => {

@@ -59,6 +59,23 @@ export function validarPassword(valor: string): boolean {
   return password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password);
 }
 
+export const MENSAJE_PASSWORD = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.';
+
+/** Vacío en ambos campos significa que el perfil no cambia la contraseña. */
+export function validarCambioPassword(
+  password: string,
+  confirmPassword: string,
+): { password?: string; confirmPassword?: string } {
+  if (password.trim() === '' && confirmPassword.trim() === '') return {};
+  const errores: { password?: string; confirmPassword?: string } = {};
+  const nueva = password.trim();
+  const confirmacion = confirmPassword.trim();
+  if (!validarPassword(nueva)) errores.password = MENSAJE_PASSWORD;
+  if (nueva !== confirmacion) errores.confirmPassword = 'Las contraseñas no coinciden.';
+  else if (!confirmacion) errores.confirmPassword = 'Confirma la contraseña.';
+  return errores;
+}
+
 export type FormularioUsuario = {
   codUsuario: string;
   tipoDocumento: string;
@@ -126,7 +143,7 @@ export function validarUsuario(
   if (datos.telefono && !validarTelefono(datos.telefono)) errores.telefono = 'El teléfono no es válido.';
   const cambiaPassword = mode === 'edit' && (formulario.password !== '' || formulario.confirmPassword !== '');
   if ((mode === 'create' && contexto.exigePassword) || cambiaPassword) {
-    if (!validarPassword(datos.password)) errores.password = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.';
+    if (!validarPassword(datos.password)) errores.password = MENSAJE_PASSWORD;
     if (datos.password !== datos.confirmPassword) errores.confirmPassword = 'Las contraseñas no coinciden.';
     else if (!datos.confirmPassword) errores.confirmPassword = 'Confirma la contraseña.';
   }

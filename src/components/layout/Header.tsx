@@ -2,15 +2,14 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { hasPermission } from "../../auth/permissions";
 import { useRole } from "../../auth/useRole";
 import { authenticatedFetch, logout, session } from "../../services/authService";
-import type { Usuario } from "../../services/usuarioService";
-import { nombreCompletoUsuario } from "../../utils/usuariosListado";
+import { nombreCompletoUsuario, usuarioDeSesion, type UsuarioSesion } from "../../utils/usuariosListado";
 import { Link, useLocation } from "react-router-dom";
 import "./Header.css";
 
 function Header() {
   const role = useRole();
   const userId = useSyncExternalStore(session.subscribe, session.getUserId);
-  const [usuario, setUsuario] = useState<Pick<Usuario, 'id_usuario' | 'nombre' | 'apellido1' | 'apellido2'> | null>(null);
+  const [usuario, setUsuario] = useState<UsuarioSesion | null>(null);
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,10 +24,10 @@ function Header() {
       try {
         const response = await authenticatedFetch(`/usuarios/${userId}`, { signal: controller.signal });
         if (!response.ok) throw new Error('No se pudo cargar el usuario.');
-        const data: Usuario = await response.json();
-        if (active && data.id_usuario === userId) setUsuario(data);
-      } catch {
-        if (active) setUsuario(null);
+        const data = usuarioDeSesion(await response.json(), userId);
+        if (active && data) setUsuario(data);
+      } catch (causa: unknown) {
+        if (active && !(causa instanceof Error && causa.name === "AbortError")) setUsuario(null);
       }
     })();
     return () => {
