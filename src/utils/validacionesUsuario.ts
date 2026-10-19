@@ -1,3 +1,5 @@
+import { esFechaCalendario } from './fechaCalendario';
+
 const LETRAS_DOCUMENTO = 'TRWAGMYFPDXBNJZSQVHLCKE';
 export const normalizarDocumento = (valor: string) => valor.trim().toUpperCase();
 export const normalizarTelefono = (valor: string) => valor.replace(/\s/g, '');
@@ -12,15 +14,21 @@ export function validarNie(valor: string): boolean {
   const nie = normalizarDocumento(valor);
   if (!/^[XYZ]\d{7}[A-Z]$/.test(nie)) return false;
   const numero = 'XYZ'.indexOf(nie[0]) + nie.slice(1, 8);
-  return LETRAS_DOCUMENTO[Number(numero) % 23] === nie[8];
+  return validarDni(numero + nie[8]);
 }
 
+// Política de formato de ALUMA (5–20 alfanuméricos), no una regla universal
+// ni una validación de MRZ o autenticidad. No se conoce el país emisor.
 export function validarPasaporte(valor: string): boolean {
   return /^[A-Z0-9]{5,20}$/.test(normalizarDocumento(valor));
 }
 
 export function validarPermisoTrabajo(valor: string): boolean {
-  return /^[A-Z0-9-]{5,30}$/.test(normalizarDocumento(valor)) && /[A-Z0-9]/.test(normalizarDocumento(valor));
+  const numero = normalizarDocumento(valor);
+  // Sin subtipo solo reconocemos NIE completos; el resto conserva el formato
+  // genérico de ALUMA. No acredita vigencia ni autorización para trabajar.
+  if (/^[XYZ]\d{7}[A-Z]$/.test(numero)) return validarNie(numero);
+  return /^[A-Z0-9-]{5,30}$/.test(numero) && /[A-Z0-9]/.test(numero);
 }
 
 export function validarTelefono(valor: string): boolean {
@@ -61,10 +69,26 @@ export type FormularioUsuario = {
   email: string;
   telefono: string;
   comentario: string;
+  fechaInscripcion: string;
   password: string;
   confirmPassword: string;
 };
 export type ErroresUsuario = Partial<Record<keyof FormularioUsuario, string>>;
+
+export function validarDocumentoUsuario(tipoDocumento: string, numeroDocumento: string): ErroresUsuario {
+  const errores: ErroresUsuario = {};
+  const tipo = tipoDocumento.trim();
+  const numero = numeroDocumento.trim();
+  if (tipo === '' && numero === '') return errores;
+  switch (tipo) {
+    case '1': if (!validarDni(numeroDocumento)) errores.numeroDocumento = 'El DNI no es válido.'; break;
+    case '2': if (!validarNie(numeroDocumento)) errores.numeroDocumento = 'El NIE no es válido.'; break;
+    case '3': if (!validarPasaporte(numeroDocumento)) errores.numeroDocumento = 'El pasaporte no tiene un formato válido.'; break;
+    case '4': if (!validarPermisoTrabajo(numeroDocumento)) errores.numeroDocumento = 'El permiso de trabajo no tiene un formato válido.'; break;
+    default: errores.tipoDocumento = 'Selecciona un tipo de documento.';
+  }
+  return errores;
+}
 
 export function normalizarUsuario(formulario: FormularioUsuario): FormularioUsuario {
   return {
@@ -77,31 +101,37 @@ export function normalizarUsuario(formulario: FormularioUsuario): FormularioUsua
     email: normalizarEmail(formulario.email),
     telefono: normalizarTelefono(formulario.telefono),
     comentario: formulario.comentario.trim(),
+    fechaInscripcion: formulario.fechaInscripcion.trim(),
     password: formulario.password.trim(),
     confirmPassword: formulario.confirmPassword.trim(),
   };
 }
 
-export function validarUsuario(formulario: FormularioUsuario): ErroresUsuario {
+export function validarUsuario(
+  formulario: FormularioUsuario,
+  mode: 'create' | 'edit',
+  contexto: { exigePassword?: boolean; exigeEmail?: boolean } = {},
+): ErroresUsuario {
   const datos = normalizarUsuario(formulario);
   const errores: ErroresUsuario = {};
-  switch (datos.tipoDocumento) {
-    case '1': if (!validarDni(datos.numeroDocumento)) errores.numeroDocumento = 'El DNI no es válido.'; break;
-    case '2': if (!validarNie(datos.numeroDocumento)) errores.numeroDocumento = 'El NIE no es válido.'; break;
-    case '3': if (!validarPasaporte(datos.numeroDocumento)) errores.numeroDocumento = 'El pasaporte no tiene un formato válido.'; break;
-    case '4': if (!validarPermisoTrabajo(datos.numeroDocumento)) errores.numeroDocumento = 'El permiso de trabajo no tiene un formato válido.'; break;
-    default: errores.tipoDocumento = 'Selecciona un tipo de documento.';
-  }
+  Object.assign(errores, validarDocumentoUsuario(datos.tipoDocumento, datos.numeroDocumento));
   if (!validarCodigoUsuario(datos.codUsuario)) errores.codUsuario = 'El código de usuario no tiene un formato válido.';
   if (!datos.nombre) errores.nombre = 'El nombre es obligatorio.';
   else if (!validarNombre(datos.nombre)) errores.nombre = 'El nombre solo puede contener letras, espacios y guiones (máximo 50 caracteres).';
   if (!validarNombre(datos.apellido1, false)) errores.apellido1 = 'El primer apellido solo puede contener letras, espacios y guiones (máximo 50 caracteres).';
   if (!validarNombre(datos.apellido2, false)) errores.apellido2 = 'El segundo apellido solo puede contener letras, espacios y guiones (máximo 50 caracteres).';
-  if (!validarEmail(datos.email)) errores.email = 'El email no es válido.';
+  if (!datos.email) {
+    if (contexto.exigeEmail) errores.email = 'El email es obligatorio para un operador o un administrador.';
+  } else if (!validarEmail(datos.email)) errores.email = 'El email no es válido.';
   if (datos.telefono && !validarTelefono(datos.telefono)) errores.telefono = 'El teléfono no es válido.';
-  if (!validarPassword(datos.password)) errores.password = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.';
-  if (datos.password !== datos.confirmPassword) errores.confirmPassword = 'Las contraseñas no coinciden.';
-  else if (!datos.confirmPassword) errores.confirmPassword = 'Confirma la contraseña.';
+  const cambiaPassword = mode === 'edit' && (formulario.password !== '' || formulario.confirmPassword !== '');
+  if ((mode === 'create' && contexto.exigePassword) || cambiaPassword) {
+    if (!validarPassword(datos.password)) errores.password = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.';
+    if (datos.password !== datos.confirmPassword) errores.confirmPassword = 'Las contraseñas no coinciden.';
+    else if (!datos.confirmPassword) errores.confirmPassword = 'Confirma la contraseña.';
+  }
   if (datos.comentario.length > 500) errores.comentario = 'Los comentarios no pueden superar los 500 caracteres.';
+  if (!datos.fechaInscripcion) errores.fechaInscripcion = 'La fecha de inscripción es obligatoria.';
+  else if (!esFechaCalendario(datos.fechaInscripcion)) errores.fechaInscripcion = 'La fecha de inscripción no es válida.';
   return errores;
 }

@@ -3,16 +3,19 @@ import { authenticatedFetch } from "./authService";
 export type Usuario = {
   id_usuario: number;
   codUsuario: string | null;
-  numeroDocumento: string;
+  id_tipo_documento: number | null;
+  numeroDocumento: string | null;
   nombre: string;
   apellido1: string | null;
   apellido2: string | null;
-  email: string;
+  email: string | null;
   telefono: string | null;
   socio: boolean;
   matriculaPagada: boolean;
   id_rol: number;
   id_estado_usuario: number;
+  comentario: string | null;
+  fechaInscripcion: string;
 };
 
 export async function getUsuarios(): Promise<Usuario[]> {
@@ -101,20 +104,21 @@ export async function updateUsuarioRol(
 
 export type CreateUsuarioData = {
   codUsuario?: string;
-  id_tipo_documento: number;
-  numeroDocumento: string;
+  id_tipo_documento?: number;
+  numeroDocumento?: string;
   nombre: string;
   apellido1?: string;
   apellido2?: string;
-  email: string;
+  email?: string;
   telefono?: string;
   id_rol: number;
   socio: boolean;
   matriculaPagada: boolean;
   id_estado_usuario: number;
   comentario?: string;
+  fechaInscripcion: string;
 
-  password: string;
+  password?: string;
 };
 
 export async function createUsuario(
@@ -143,4 +147,78 @@ export async function createUsuario(
   }
 
   return response.json();
+}
+
+export type UpdateUsuarioData = {
+  codUsuario?: string;
+  id_tipo_documento?: number | null;
+  numeroDocumento?: string | null;
+  nombre?: string;
+  apellido1?: string;
+  apellido2?: string;
+  email?: string | null;
+  telefono?: string;
+  id_rol?: number;
+  socio?: boolean;
+  matriculaPagada?: boolean;
+  id_estado_usuario?: number;
+  comentario?: string;
+  fechaInscripcion?: string;
+  password?: string;
+};
+
+export async function updateUsuario(
+  idUsuario: number,
+  data: UpdateUsuarioData,
+): Promise<Usuario> {
+  const response = await authenticatedFetch(
+    `/usuarios/${idUsuario}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => null);
+
+    throw new Error(
+      errorData?.message ??
+        "No se ha podido actualizar el usuario.",
+    );
+  }
+
+  return response.json();
+}
+
+export async function deleteUsuario(id: number): Promise<void> {
+  const response = await authenticatedFetch(
+    `/usuarios/${id}`,
+    {
+      method: "DELETE",
+      headers: {},
+    },
+  );
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => null);
+
+    const error = new Error(
+      errorData?.message ??
+        "No se ha podido eliminar el usuario.",
+    ) as Error & { code?: string };
+
+    if (typeof errorData?.code === "string") {
+      error.code = errorData.code;
+    }
+
+    throw error;
+  }
 }

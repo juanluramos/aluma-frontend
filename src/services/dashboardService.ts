@@ -12,13 +12,21 @@ export type UpcomingActivity = {
   titulo: string;
   fecha: string;
   aforo: number | null;
-  inscritos: number;
+  plazasOcupadas: number;
+  plazasDisponibles: number | null;
+  personasEnEspera: number;
 };
 
 export type AnnualAttendance = {
   month: string;
   actual: number;
   anterior: number;
+};
+
+export type InscripcionesPorMes = {
+  anioActual: number;
+  anioAnterior: number;
+  meses: AnnualAttendance[];
 };
 
 export type PaymentStatus = {
@@ -50,13 +58,13 @@ export async function getUpcomingActivities(): Promise<UpcomingActivity[]> {
   return response.json();
 }
 
-export async function getAnnualAttendance(): Promise<AnnualAttendance[]> {
+export async function getAnnualAttendance(): Promise<InscripcionesPorMes> {
   const response = await authenticatedFetch(
     "/dashboard/asistencia-anual"
   );
 
   if (!response.ok) {
-    throw new Error("Error al obtener la asistencia anual");
+    throw new Error("No se pudieron cargar las inscripciones por mes.");
   }
 
   return response.json();

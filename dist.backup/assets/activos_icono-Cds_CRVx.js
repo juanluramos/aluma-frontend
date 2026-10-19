@@ -1,0 +1,1 @@
+var e=`/assets/usuarios_icono-B9AtWNwC.webp`,t=`/assets/activos_icono-C_52DYN0.webp`;export{e as n,t};

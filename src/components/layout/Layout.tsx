@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import './Layout.css';
 import Header from "./Header";
@@ -14,7 +15,9 @@ function Layout() {
         <Header />
 
         <main>
-          <Outlet />
+          <Suspense fallback={<p role="status">Cargando página…</p>}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

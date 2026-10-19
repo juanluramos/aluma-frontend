@@ -1,6 +1,7 @@
+import { limpiarPreferenciasSesion } from "../utils/preferenciasSesion";
 import { SessionClient } from './sessionClient';
 
-export const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api').replace(/\/$/, '');
+export const API_URL = (import.meta.env?.VITE_API_URL ?? 'http://localhost:3000/api').replace(/\/$/, '');
 const ACTIVITY_KEY = 'aluma.lastActivity';
 const LOGOUT_KEY = 'aluma.logout';
 let tracking = false;
@@ -13,6 +14,7 @@ export const session = new SessionClient({
     try { localStorage.setItem(ACTIVITY_KEY, String(at)); } catch { /* Storage may be disabled. */ }
   },
   onExpired: () => {
+    limpiarPreferenciasSesion();
     try {
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
@@ -25,8 +27,39 @@ export const session = new SessionClient({
   },
 });
 
+export type RegistroLogin = {
+  nombre: string;
+  apellido1?: string;
+  email: string;
+  password: string;
+  id_tipo_documento: number;
+  numeroDocumento: string;
+};
+
+export async function registrarDesdeLogin(datos: RegistroLogin): Promise<string> {
+  const response = await fetch(`${API_URL}/auth/registro`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(
+      typeof body.message === "string" ? body.message : "No se ha podido crear la cuenta",
+    );
+  }
+  return typeof body.message === "string"
+    ? body.message
+    : "Tu cuenta queda pendiente de revisión. Todavía no puedes iniciar sesión.";
+}
+
 export type LoginResponse = { token: string };
-export const login = (email: string, password: string): Promise<LoginResponse> => session.login(email, password);
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  const respuesta = await session.login(email, password);
+  limpiarPreferenciasSesion();
+  return respuesta;
+};
 export const getRole = session.getRole;
 export const getToken = () => session.getToken();
 export const authenticatedFetch = (path: string, init?: RequestInit) => session.authenticatedFetch(path, init);

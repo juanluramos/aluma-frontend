@@ -1,0 +1,432 @@
+.inscripciones-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-block: 20px;
+  padding-inline: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-medium);
+  color: var(--color-text);
+}
+
+.inscripciones-stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 60px;
+  padding: 8px 12px;
+}
+
+.inscripciones-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 150px;
+}
+
+.inscripciones-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inscripciones-stat-icon-green { background-color: #e6f5e9; }
+.inscripciones-stat-icon-red { background-color: #fde8ea; }
+.inscripciones-stat-icon-yellow { background-color: #fff3d6; }
+
+.inscripciones-stat-icon img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.inscripciones-stat-label {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+}
+
+.inscripciones-stat-value {
+  display: block;
+  color: var(--color-black);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.inscripciones-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 4px 0;
+}
+
+.inscripciones-new-button {
+  height: 36px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-small);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.inscripciones-new-button:hover {
+  opacity: 0.9;
+}
+
+.inscripciones-new-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.inscripciones-list-title strong {
+  display: block;
+  font-size: var(--font-size-normal);
+  color: var(--color-black);
+}
+
+.inscripciones-list-title span {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text);
+  font-size: 12px;
+}
+
+.inscripciones-table-container {
+  background-color: var(--color-white);
+  border-radius: var(--radius-medium);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.inscripciones-tabla {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.inscripciones-tabla th,
+.inscripciones-tabla td {
+  padding: 0 12px;
+  text-align: left;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.inscripciones-tabla th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding-block: 8px;
+  background-color: #f8f8f8;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: visible;
+}
+
+.inscripciones-tabla td {
+  padding: 4px 10px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  color: var(--color-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inscripciones-tabla tbody tr td {
+  transition: background-color 0.15s ease;
+}
+
+.inscripciones-tabla tbody tr:hover > td {
+  background-color: var(--color-background);
+}
+
+.inscripciones-row-editable {
+  cursor: pointer;
+}
+
+.inscripciones-row-editable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.inscripciones-tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.inscripciones-tabla th:nth-child(1),
+.inscripciones-tabla td:nth-child(1) {
+  width: 12ch;
+  min-width: 12ch;
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+
+.inscripciones-tabla th:nth-child(2),
+.inscripciones-tabla td:nth-child(2) {
+  width: 20%;
+}
+
+
+.inscripciones-tabla th:nth-child(3),
+.inscripciones-tabla td:nth-child(3) {
+  width: 28%;
+}
+
+.inscripciones-tabla th:nth-child(4),
+.inscripciones-tabla td:nth-child(4),
+.inscripciones-tabla th:nth-child(7),
+.inscripciones-tabla td:nth-child(7) {
+  width: 12%;
+}
+
+.inscripciones-tabla th:nth-child(5),
+.inscripciones-tabla td:nth-child(5),
+.inscripciones-tabla th:nth-child(6),
+.inscripciones-tabla td:nth-child(6) {
+  width: 12%;
+}
+
+.inscripciones-estado {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inscripciones-estado-activa,
+.inscripciones-estado-pagado {
+  color: #2e7d32;
+}
+
+.inscripciones-estado-cerrada,
+.inscripciones-estado-cancelado,
+.inscripciones-estado-desconocido {
+  color: #656565;
+}
+
+.inscripciones-estado-pendiente {
+  color: #8a6500;
+}
+
+.inscripciones-estado-devolucion {
+  color: var(--color-primary);
+}
+
+.inscripciones-aviso {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-medium, 8px);
+  background-color: #fff4cc;
+  color: #5c4300;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  text-align: left;
+}
+
+:root[data-theme="night"] .inscripciones-aviso {
+  background-color: #3d3420;
+  color: #ffe7a3;
+}
+
+.inscripciones-mensaje,
+.inscripciones-error {
+  padding: 24px;
+  text-align: center;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+}
+
+.inscripciones-error {
+  color: var(--color-primary);
+}
+
+.inscripciones-sort-button {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: inherit;
+
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.inscripciones-sort-button .inscripciones-sort-icon {
+  color: var(--color-primary);
+
+  font-size: 10px;
+
+  opacity: 0.3;
+
+  transition: opacity 0.2s ease;
+}
+
+.inscripciones-sort-button .inscripciones-sort-icon.active,
+.inscripciones-sort-button:hover .inscripciones-sort-icon {
+  opacity: 1;
+}
+
+.inscripciones-sort-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+
+  outline-offset: 4px;
+
+  border-radius: 2px;
+}
+
+
+.inscripciones-list-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-left: auto;
+}
+
+.inscripciones-search,
+.inscripciones-filter {
+  width: 100%;
+  min-width: 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid #dddddd;
+  border-radius: var(--radius-small);
+
+  background-color: var(--color-white);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+
+  box-sizing: border-box;
+}
+
+.inscripciones-search-wrapper {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 240px;
+  min-width: 180px;
+}
+
+.inscripciones-search-icon {
+  position: absolute;
+
+  left: 10px;
+
+  width: 16px;
+  height: 16px;
+
+  object-fit: contain;
+
+  pointer-events: none;
+
+  z-index: 1;
+}
+
+.inscripciones-search-wrapper .inscripciones-search {
+  width: 100%;
+  height: 36px;
+
+  padding: 8px 12px 8px 36px;
+}
+
+
+.inscripciones-list-actions { flex-wrap: wrap; max-width: 100%; }
+.inscripciones-search { color: var(--color-text); }
+.inscripciones-search:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+@media (max-width: 600px) {
+  .inscripciones-list-actions, .inscripciones-search-wrapper { width: 100%; min-width: 0; }
+}
+
+.inscripciones-list-actions .inscripciones-filter {
+  width: 150px;
+  height: 36px;
+}
+
+.inscripciones-filter:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .inscripciones-list-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inscripciones-list-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 700px) {
+  .inscripciones-search-wrapper,
+  .inscripciones-list-actions .inscripciones-filter,
+  .inscripciones-new-button {
+    width: 100%;
+  }
+}
+
+.inscripciones-page .inscripciones-table-container {
+  overflow-x: auto;
+}
+
+.inscripciones-pagos-tabla {
+  min-width: 1200px;
+}
+
+.inscripciones-pagos-tabla th:nth-child(n),
+.inscripciones-pagos-tabla td:nth-child(n) {
+  width: 120px;
+}
+
+.inscripciones-pagos-tabla th:first-child,
+.inscripciones-pagos-tabla td:first-child {
+  width: 80px;
+  min-width: 80px;
+}
+
+.inscripciones-pagos-tabla th:nth-child(2),
+.inscripciones-pagos-tabla td:nth-child(2) {
+  width: 180px;
+}
+
+.inscripciones-pagos-tabla th:nth-child(3),
+.inscripciones-pagos-tabla td:nth-child(3) {
+  width: 220px;
+}

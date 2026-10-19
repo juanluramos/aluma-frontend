@@ -56,6 +56,18 @@ const provinces: Province[] = [
   },
 ];
 
+function etiquetaDia(fechaIso: string): string {
+  const [anio, mes, dia] = fechaIso.split("-").map(Number);
+  if (!anio || !mes || !dia) return fechaIso;
+
+  const fecha = new Date(anio, mes - 1, dia);
+  const semana = fecha
+    .toLocaleDateString("es-ES", { weekday: "short" })
+    .replace(/\.$/, "");
+
+  return `${semana} ${dia}`;
+}
+
 function WeatherForecast() {
   const [weatherData, setWeatherData] = useState<WeatherDay[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,9 +90,7 @@ function WeatherForecast() {
 
         const formattedData: WeatherDay[] = data.daily.time.map(
           (date: string, index: number) => ({
-            day: new Date(date).toLocaleDateString("es-ES", {
-              weekday: "short",
-            }),
+            day: etiquetaDia(date),
             max: Math.round(data.daily.temperature_2m_max[index]),
             min: Math.round(data.daily.temperature_2m_min[index]),
             weatherCode: data.daily.weather_code[index],

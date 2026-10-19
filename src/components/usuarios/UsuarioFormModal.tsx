@@ -1,13 +1,29 @@
-import { normalizarUsuario, validarUsuario, type ErroresUsuario } from "../../utils/validacionesUsuario";
+import { construirDatosCreacionUsuario, construirDatosEdicionUsuario } from "../../utils/usuarioFormPayload";
+import { obtenerValoresIniciales } from "../../utils/usuarioFormState";
+import {
+  normalizarUsuario,
+  normalizarDocumento,
+  validarDocumentoUsuario,
+  validarUsuario,
+  type ErroresUsuario,
+} from "../../utils/validacionesUsuario";
+
 import {
   useState,
-  type FormEvent,
+  type SubmitEvent,
 } from "react";
 
 import Modal from "../modal/Modal";
+import { hasPermission } from "../../auth/permissions";
+import { useRole } from "../../auth/useRole";
+
+import UsuarioDatosPersonales from "./UsuarioDatosPersonales";
+import UsuarioAcceso from "./UsuarioAcceso";
+import UsuarioEstadoSocio from "./UsuarioEstadoSocio";
 
 import {
   createUsuario,
+  updateUsuario,
   type Usuario,
 } from "../../services/usuarioService";
 
@@ -15,67 +31,127 @@ import "./UsuarioFormModal.css";
 
 type UsuarioFormModalProps = {
   isOpen: boolean;
+
+  mode: "create" | "edit";
+
+  usuario?: Usuario;
+
   onClose: () => void;
-  onCreated: (usuario: Usuario) => void;
+
+  onCreated?: (usuario: Usuario) => void;
+
+  onUpdated?: (usuario: Usuario) => void;
+
+  /** Solo en edición: muestra Eliminar y dispara la confirmación en la página. */
+  onSolicitarEliminar?: () => void;
 };
 
 function UsuarioFormModal({
   isOpen,
+  mode,
+  usuario,
   onClose,
   onCreated,
+  onUpdated,
+  onSolicitarEliminar,
 }: UsuarioFormModalProps) {
-  const [codUsuario, setCodUsuario] =
-    useState("");
+  const isEdit = mode === "edit";
+  const role = useRole();
+  const puedeCambiarRol = hasPermission(role, "cambiarRolUsuario");
+  const puedeCambiarEstado = hasPermission(role, "cambiarEstadoUsuario");
+  const puedeMarcarChecks = role === "Operador" || role === "Administrador";
+  const mostrarEliminar = isEdit && typeof onSolicitarEliminar === "function";
+
+  const valoresIniciales = obtenerValoresIniciales(mode, usuario);
+
+  /*
+   * DATOS PERSONALES
+   */
+
+  const [fechaInscripcion, setFechaInscripcion] = useState(
+    valoresIniciales.fechaInscripcion,
+  );
+
+  const [codUsuario, setCodUsuario] = useState(
+    valoresIniciales.codUsuario,
+  );
 
   const [
     tipoDocumento,
     setTipoDocumento,
-  ] = useState("");
+  ] = useState(
+    valoresIniciales.tipoDocumento,
+  );
 
   const [
     numeroDocumento,
     setNumeroDocumento,
-  ] = useState("");
+  ] = useState(
+    valoresIniciales.numeroDocumento,
+  );
 
-  const [nombre, setNombre] =
-    useState("");
+  const [nombre, setNombre] = useState(
+    valoresIniciales.nombre,
+  );
 
-  const [apellido1, setApellido1] =
-    useState("");
+  const [apellido1, setApellido1] = useState(
+    valoresIniciales.apellido1,
+  );
 
-  const [apellido2, setApellido2] =
-    useState("");
+  const [apellido2, setApellido2] = useState(
+    valoresIniciales.apellido2,
+  );
 
-  const [email, setEmail] =
-    useState("");
+  const [email, setEmail] = useState(
+    valoresIniciales.email,
+  );
 
-  const [telefono, setTelefono] =
-    useState("");
+  const [telefono, setTelefono] = useState(
+    valoresIniciales.telefono,
+  );
 
-  const [rol, setRol] =
-    useState("1");
+  /*
+   * ACCESO
+   */
 
-  const [estado, setEstado] =
-    useState("1");
-
-  const [socio, setSocio] =
-    useState(false);
-
-  const [
-    matriculaPagada,
-    setMatriculaPagada,
-  ] = useState(false);
-
-  const [comentario, setComentario] =
-    useState("");
+  const [rol, setRol] = useState(
+    valoresIniciales.rol,
+  );
 
   const [password, setPassword] =
-    useState("");
+    useState(valoresIniciales.password);
 
   const [
     confirmPassword,
     setConfirmPassword,
-  ] = useState("");
+  ] = useState(valoresIniciales.confirmPassword);
+
+  /*
+   * ESTADO / SOCIO
+   */
+
+  const [estado, setEstado] = useState(
+    valoresIniciales.estado,
+  );
+
+  const [socio, setSocio] = useState(
+    valoresIniciales.socio,
+  );
+
+  const [
+    matriculaPagada,
+    setMatriculaPagada,
+  ] = useState(
+    valoresIniciales.matriculaPagada,
+  );
+
+  const [comentario, setComentario] = useState(
+    valoresIniciales.comentario,
+  );
+
+  /*
+   * ESTADO DEL FORMULARIO
+   */
 
   const [submitting, setSubmitting] =
     useState(false);
@@ -83,34 +159,47 @@ function UsuarioFormModal({
   const [error, setError] =
     useState<string | null>(null);
 
-  const [errores, setErrores] = useState<ErroresUsuario>({});
+  const [errores, setErrores] =
+    useState<ErroresUsuario>({});
+
+  /*
+   * REINICIAR FORMULARIO
+   */
 
   function resetForm() {
+    const valores = obtenerValoresIniciales(mode, usuario);
+
+    setFechaInscripcion(valores.fechaInscripcion);
+    setCodUsuario(valores.codUsuario);
+    setTipoDocumento(valores.tipoDocumento);
+    setNumeroDocumento(valores.numeroDocumento);
+
+    setNombre(valores.nombre);
+    setApellido1(valores.apellido1);
+    setApellido2(valores.apellido2);
+
+    setEmail(valores.email);
+    setTelefono(valores.telefono);
+
+    setRol(valores.rol);
+
+    setEstado(valores.estado);
+
+    setSocio(valores.socio);
+    setMatriculaPagada(valores.matriculaPagada);
+
+    setComentario(valores.comentario);
+
+    setPassword(valores.password);
+    setConfirmPassword(valores.confirmPassword);
+
     setErrores({});
-    setCodUsuario("");
-    setTipoDocumento("");
-    setNumeroDocumento("");
-
-    setNombre("");
-    setApellido1("");
-    setApellido2("");
-
-    setEmail("");
-    setTelefono("");
-
-    setRol("1");
-    setEstado("1");
-
-    setSocio(false);
-    setMatriculaPagada(false);
-
-    setComentario("");
-
-    setPassword("");
-    setConfirmPassword("");
-
     setError(null);
   }
+
+  /*
+   * CERRAR MODAL
+   */
 
   function handleClose() {
     if (submitting) {
@@ -118,457 +207,357 @@ function UsuarioFormModal({
     }
 
     resetForm();
+
     onClose();
   }
 
+  /*
+   * GUARDAR
+   */
+
+  // Conservar documentos heredados al editar otros campos, sin reenviarlos.
+  function esDocumentoOriginal(tipo: string, numero: string): boolean {
+    if (!isEdit || usuario === undefined) return false;
+    const tipoOriginal = usuario.id_tipo_documento == null ? '' : String(usuario.id_tipo_documento);
+    const numeroOriginal = usuario.numeroDocumento ?? '';
+    return tipo === tipoOriginal
+      && normalizarDocumento(numero) === normalizarDocumento(numeroOriginal);
+  }
+  const documentoSinCambios = esDocumentoOriginal(tipoDocumento, numeroDocumento);
+
+  function actualizarDocumento(tipo: string, numero: string): void {
+    setTipoDocumento(tipo);
+    setNumeroDocumento(numero);
+    setErrores(previos => ({
+      ...previos,
+      tipoDocumento: undefined,
+      numeroDocumento: undefined,
+      ...(esDocumentoOriginal(tipo, numero) ? {} : validarDocumentoUsuario(tipo, numero)),
+    }));
+  }
+
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
+    event: SubmitEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
 
     setError(null);
 
-    if (submitting) return;
-    const formulario = { codUsuario, tipoDocumento, numeroDocumento, nombre, apellido1, apellido2, email, telefono, comentario, password, confirmPassword };
-    const erroresValidacion = validarUsuario(formulario);
-    setErrores(erroresValidacion);
-    if (Object.keys(erroresValidacion).length > 0) {
-      setError("Revisa los campos indicados antes de guardar.");
-      const primerCampo = Object.keys(erroresValidacion)[0];
-      event.currentTarget.querySelector<HTMLElement>(`#${primerCampo}`)?.focus();
+    if (submitting) {
       return;
     }
-    const datos = normalizarUsuario(formulario);
+
+    /*
+     * Construimos los datos que se
+     * validarán y normalizarán.
+     */
+
+    const formulario = {
+      codUsuario,
+      tipoDocumento,
+      numeroDocumento,
+      nombre,
+      apellido1,
+      apellido2,
+      email,
+      telefono,
+      comentario,
+      fechaInscripcion,
+      password,
+      confirmPassword,
+    };
+
+    const requierePassword =
+      mode === "create" &&
+      role === "Administrador" &&
+      (Number(rol) === 2 || Number(rol) === 3);
+    const erroresValidacion = validarUsuario(formulario, mode, {
+      exigePassword: requierePassword,
+      exigeEmail: Number(rol) === 2 || Number(rol) === 3,
+    });
+    if (documentoSinCambios) {
+      delete erroresValidacion.tipoDocumento;
+      delete erroresValidacion.numeroDocumento;
+    }
+
+    setErrores(
+      erroresValidacion,
+    );
+
+    if (
+      Object.keys(
+        erroresValidacion,
+      ).length > 0
+    ) {
+      setError(
+        "Revisa los campos indicados antes de guardar.",
+      );
+
+      const primerCampo =
+        Object.keys(
+          erroresValidacion,
+        )[0];
+
+      event.currentTarget
+        .querySelector<HTMLElement>(
+          `#${primerCampo}`,
+        )
+        ?.focus();
+
+      return;
+    }
+
+    /*
+     * NORMALIZACIÓN
+     */
+
+    const datos =
+      normalizarUsuario(
+        formulario,
+      );
 
     try {
       setSubmitting(true);
 
-      const usuarioCreado =
-        await createUsuario({
-          codUsuario: datos.codUsuario || undefined,
-          id_tipo_documento: Number(datos.tipoDocumento),
-          numeroDocumento: datos.numeroDocumento,
-          nombre: datos.nombre,
-          apellido1: datos.apellido1 || undefined,
-          apellido2: datos.apellido2 || undefined,
-          email: datos.email,
-          telefono: datos.telefono || undefined,
-          id_rol: Number(rol),
-          socio,
-          matriculaPagada,
-          id_estado_usuario: Number(estado),
-          comentario: datos.comentario || undefined,
-          password: datos.password,
-        });
+      /*
+       * =========================
+       * EDITAR USUARIO
+       * =========================
+       */
 
-      onCreated(usuarioCreado);
+      if (
+        isEdit &&
+        usuario
+      ) {
+        const usuarioActualizado =
+          await updateUsuario(
+            usuario.id_usuario,
+            construirDatosEdicionUsuario(
+              datos,
+              { rol, estado, socio, matriculaPagada },
+              {
+                documentoSinCambios,
+                puedeCambiarRol,
+                puedeCambiarEstado: puedeMarcarChecks,
+                puedeCambiarSocio: puedeMarcarChecks,
+              },
+            ),
+          );
+
+        onUpdated?.(
+          usuarioActualizado,
+        );
+
+        onClose();
+
+        return;
+      }
+
+      /*
+       * =========================
+       * CREAR USUARIO
+       * =========================
+       */
+
+      const usuarioCreado =
+        await createUsuario(
+          construirDatosCreacionUsuario(
+            datos,
+            { rol, estado, socio, matriculaPagada },
+            {
+              puedeCambiarRol,
+              puedeCambiarEstado: puedeCambiarEstado || puedeMarcarChecks,
+              puedeCambiarSocio: puedeMarcarChecks,
+            },
+          ),
+        );
+
+      onCreated?.(
+        usuarioCreado,
+      );
 
       resetForm();
 
       onClose();
     } catch (error) {
       console.error(
-        "Error al crear usuario:",
+        isEdit
+          ? "Error al actualizar usuario:"
+          : "Error al crear usuario:",
         error,
       );
 
       setError(
         error instanceof Error
           ? error.message
-          : "No se ha podido crear el usuario.",
+          : isEdit
+            ? "No se ha podido actualizar el usuario."
+            : "No se ha podido crear el usuario.",
       );
     } finally {
       setSubmitting(false);
     }
   }
 
+  /*
+   * INTERFAZ
+   */
+
   return (
     <Modal
       isOpen={isOpen}
-      title="Nuevo usuario"
-      onClose={handleClose}
+      title={
+        isEdit
+          ? "Editar usuario"
+          : role === "Operador"
+            ? "Nuevo socio"
+            : "Nuevo usuario"
+      }
+      onClose={
+        handleClose
+      }
     >
       <form
         className="usuario-form"
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
         noValidate
       >
         <div className="usuario-form-grid">
 
-          {/* CÓDIGO USUARIO */}
+          {/* DATOS PERSONALES */}
 
-          <div className="usuario-form-field">
-            <label htmlFor="codUsuario">
-              Código de usuario
-            </label>
+          <UsuarioDatosPersonales
+            fechaInscripcion={
+              fechaInscripcion
+            }
+            codUsuario={
+              codUsuario
+            }
+            tipoDocumento={
+              tipoDocumento
+            }
+            numeroDocumento={
+              numeroDocumento
+            }
+            nombre={
+              nombre
+            }
+            apellido1={
+              apellido1
+            }
+            apellido2={
+              apellido2
+            }
+            telefono={
+              telefono
+            }
+            email={
+              email
+            }
+            emailObligatorio={
+              Number(rol) === 2 || Number(rol) === 3
+            }
+            errores={
+              errores
+            }
+            onFechaInscripcionChange={
+              setFechaInscripcion
+            }
+            onCodUsuarioChange={
+              setCodUsuario
+            }
+            onTipoDocumentoChange={tipo => actualizarDocumento(tipo, numeroDocumento)}
+            onNumeroDocumentoChange={numero => actualizarDocumento(tipoDocumento, numero)}
+            onNombreChange={
+              setNombre
+            }
+            onApellido1Change={
+              setApellido1
+            }
+            onApellido2Change={
+              setApellido2
+            }
+            onTelefonoChange={
+              setTelefono
+            }
+            onEmailChange={
+              setEmail
+            }
+          />
 
-            <input
-              id="codUsuario"
-              aria-invalid={Boolean(errores.codUsuario)}
-              aria-describedby={errores.codUsuario ? "codUsuario-error" : undefined}
-              type="text"
-              value={codUsuario}
-              onChange={(event) =>
-                setCodUsuario(
-                  event.target.value,
-                )
-              }
-              placeholder="Ej. ALU001"
-            />
-            {errores.codUsuario && <p id="codUsuario-error" className="usuario-form-field-error">{errores.codUsuario}</p>}
-          </div>
+          {/* ACCESO */}
 
-          {/* TIPO DOCUMENTO */}
+          <UsuarioAcceso
+            puedeCambiarRol={puedeCambiarRol}
+            rol={
+              rol
+            }
+            password={
+              password
+            }
+            confirmPassword={
+              confirmPassword
+            }
+            errores={
+              errores
+            }
+            isEdit={
+              isEdit
+            }
+            currentUserRole={
+              role
+            }
+            onRolChange={
+              setRol
+            }
+            onPasswordChange={
+              setPassword
+            }
+            onConfirmPasswordChange={
+              setConfirmPassword
+            }
+          />
 
-          <div className="usuario-form-field">
-            <label htmlFor="tipoDocumento">
-              Tipo de documento
-            </label>
+          {/* ESTADO / SOCIO */}
 
-            <select
-              id="tipoDocumento"
-              aria-invalid={Boolean(errores.tipoDocumento)}
-              aria-describedby={errores.tipoDocumento ? "tipoDocumento-error" : undefined}
-              value={tipoDocumento}
-              onChange={(event) =>
-                setTipoDocumento(
-                  event.target.value,
-                )
-              }
-              required
-            >
-              <option value="">
-                Selecciona tipo
-              </option>
-
-              <option value="1">
-                DNI
-              </option>
-
-              <option value="2">
-                NIE
-              </option>
-
-              <option value="3">
-                PASAPORTE
-              </option>
-
-              <option value="4">
-                PERMISO DE TRABAJO
-              </option>
-            </select>
-            {errores.tipoDocumento && <p id="tipoDocumento-error" className="usuario-form-field-error">{errores.tipoDocumento}</p>}
-          </div>
-
-          {/* NÚMERO DOCUMENTO */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="numeroDocumento">
-              Número de documento
-            </label>
-
-            <input
-              id="numeroDocumento"
-              aria-invalid={Boolean(errores.numeroDocumento)}
-              aria-describedby={errores.numeroDocumento ? "numeroDocumento-error" : undefined}
-              type="text"
-              value={numeroDocumento}
-              onChange={(event) =>
-                setNumeroDocumento(
-                  event.target.value,
-                )
-              }
-              placeholder="Introduce documento"
-              required
-            />
-            {errores.numeroDocumento && <p id="numeroDocumento-error" className="usuario-form-field-error">{errores.numeroDocumento}</p>}
-          </div>
-
-          {/* ROL */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="rol">
-              Rol
-            </label>
-
-            <select
-              id="rol"
-              value={rol}
-              onChange={(event) =>
-                setRol(
-                  event.target.value,
-                )
-              }
-            >
-              <option value="1">
-                Usuario
-              </option>
-
-              <option value="2">
-                Operador
-              </option>
-
-              <option value="3">
-                Administrador
-              </option>
-            </select>
-          </div>
-
-          {/* NOMBRE */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="nombre">
-              Nombre
-            </label>
-
-            <input
-              id="nombre"
-              aria-invalid={Boolean(errores.nombre)}
-              aria-describedby={errores.nombre ? "nombre-error" : undefined}
-              type="text"
-              value={nombre}
-              onChange={(event) =>
-                setNombre(
-                  event.target.value,
-                )
-              }
-              placeholder="Introduce el nombre"
-              required
-            />
-            {errores.nombre && <p id="nombre-error" className="usuario-form-field-error">{errores.nombre}</p>}
-          </div>
-
-          {/* PRIMER APELLIDO */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="apellido1">
-              Primer apellido
-            </label>
-
-            <input
-              id="apellido1"
-              aria-invalid={Boolean(errores.apellido1)}
-              aria-describedby={errores.apellido1 ? "apellido1-error" : undefined}
-              type="text"
-              value={apellido1}
-              onChange={(event) =>
-                setApellido1(
-                  event.target.value,
-                )
-              }
-              placeholder="Primer apellido"
-            />
-            {errores.apellido1 && <p id="apellido1-error" className="usuario-form-field-error">{errores.apellido1}</p>}
-          </div>
-
-          {/* SEGUNDO APELLIDO */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="apellido2">
-              Segundo apellido
-            </label>
-
-            <input
-              id="apellido2"
-              aria-invalid={Boolean(errores.apellido2)}
-              aria-describedby={errores.apellido2 ? "apellido2-error" : undefined}
-              type="text"
-              value={apellido2}
-              onChange={(event) =>
-                setApellido2(
-                  event.target.value,
-                )
-              }
-              placeholder="Segundo apellido"
-            />
-            {errores.apellido2 && <p id="apellido2-error" className="usuario-form-field-error">{errores.apellido2}</p>}
-          </div>
-
-          {/* TELÉFONO */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="telefono">
-              Teléfono
-            </label>
-
-            <input
-              id="telefono"
-              aria-invalid={Boolean(errores.telefono)}
-              aria-describedby={errores.telefono ? "telefono-error" : undefined}
-              type="tel"
-              value={telefono}
-              onChange={(event) =>
-                setTelefono(
-                  event.target.value,
-                )
-              }
-              placeholder="Introduce teléfono"
-            />
-            {errores.telefono && <p id="telefono-error" className="usuario-form-field-error">{errores.telefono}</p>}
-          </div>
-
-          {/* EMAIL */}
-
-          <div className="usuario-form-field usuario-form-field-full">
-            <label htmlFor="email">
-              Email
-            </label>
-
-            <input
-              id="email"
-              aria-invalid={Boolean(errores.email)}
-              aria-describedby={errores.email ? "email-error" : undefined}
-              type="email"
-              value={email}
-              onChange={(event) =>
-                setEmail(
-                  event.target.value,
-                )
-              }
-              placeholder="correo@ejemplo.com"
-              required
-            />
-            {errores.email && <p id="email-error" className="usuario-form-field-error">{errores.email}</p>}
-          </div>
-
-          {/* CONTRASEÑA */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="password">
-              Contraseña
-            </label>
-
-            <input
-              id="password"
-              aria-invalid={Boolean(errores.password)}
-              aria-describedby={errores.password ? "password-error" : undefined}
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(
-                  event.target.value,
-                )
-              }
-              placeholder="Mínimo 8 caracteres"
-              autoComplete="new-password"
-              required
-            />
-            {errores.password && <p id="password-error" className="usuario-form-field-error">{errores.password}</p>}
-          </div>
-
-          {/* CONFIRMAR CONTRASEÑA */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="confirmPassword">
-              Confirmar contraseña
-            </label>
-
-            <input
-              id="confirmPassword"
-              aria-invalid={Boolean(errores.confirmPassword)}
-              aria-describedby={errores.confirmPassword ? "confirmPassword-error" : undefined}
-              type="password"
-              value={confirmPassword}
-              onChange={(event) =>
-                setConfirmPassword(
-                  event.target.value,
-                )
-              }
-              placeholder="Repite la contraseña"
-              autoComplete="new-password"
-              required
-            />
-            {errores.confirmPassword && <p id="confirmPassword-error" className="usuario-form-field-error">{errores.confirmPassword}</p>}
-          </div>
-
-          {/* ESTADO */}
-
-          <div className="usuario-form-field">
-            <label htmlFor="estado">
-              Estado
-            </label>
-
-            <select
-              id="estado"
-              value={estado}
-              onChange={(event) =>
-                setEstado(
-                  event.target.value,
-                )
-              }
-            >
-              <option value="1">
-                Activo
-              </option>
-
-              <option value="2">
-                Inactivo
-              </option>
-            </select>
-          </div>
-
-          {/* SOCIO / MATRÍCULA */}
-
-          <div className="usuario-form-options">
-            <label className="usuario-form-check">
-              <input
-                type="checkbox"
-                checked={socio}
-                onChange={(event) =>
-                  setSocio(
-                    event.target.checked,
-                  )
-                }
-              />
-
-              <span>Socio</span>
-            </label>
-
-            <label className="usuario-form-check">
-              <input
-                type="checkbox"
-                checked={
-                  matriculaPagada
-                }
-                onChange={(event) =>
-                  setMatriculaPagada(
-                    event.target.checked,
-                  )
-                }
-              />
-
-              <span>
-                Matrícula pagada
-              </span>
-            </label>
-          </div>
-
-          {/* COMENTARIOS */}
-
-          <div className="usuario-form-field usuario-form-field-full">
-            <label htmlFor="comentario">
-              Comentarios
-            </label>
-
-            <textarea
-              id="comentario"
-              aria-invalid={Boolean(errores.comentario)}
-              aria-describedby={errores.comentario ? "comentario-error" : undefined}
-              value={comentario}
-              onChange={(event) =>
-                setComentario(
-                  event.target.value,
-                )
-              }
-              placeholder="Añade un comentario..."
-              maxLength={500}
-              rows={3}
-            />
-            {errores.comentario && <p id="comentario-error" className="usuario-form-field-error">{errores.comentario}</p>}
-          </div>
+          <UsuarioEstadoSocio
+            puedeCambiarEstado={puedeCambiarEstado}
+            puedeCambiarSocio={puedeMarcarChecks}
+            puedeMarcarActivo={puedeMarcarChecks}
+            estado={
+              estado
+            }
+            socio={
+              socio
+            }
+            matriculaPagada={
+              matriculaPagada
+            }
+            comentario={
+              comentario
+            }
+            mostrarActivo
+            errores={
+              errores
+            }
+            onEstadoChange={
+              setEstado
+            }
+            onSocioChange={
+              setSocio
+            }
+            onMatriculaPagadaChange={
+              setMatriculaPagada
+            }
+            onComentarioChange={
+              setComentario
+            }
+          />
         </div>
 
-        {/* ERROR */}
+        {/* ERROR GENERAL */}
 
         {error && (
           <div
@@ -582,11 +571,26 @@ function UsuarioFormModal({
         {/* BOTONES */}
 
         <div className="usuario-form-actions">
+          {mostrarEliminar ? (
+            <button
+              type="button"
+              className="usuario-form-eliminar"
+              onClick={onSolicitarEliminar}
+              disabled={submitting}
+            >
+              Eliminar
+            </button>
+          ) : null}
+
           <button
             type="button"
             className="usuario-form-cancel"
-            onClick={handleClose}
-            disabled={submitting}
+            onClick={
+              handleClose
+            }
+            disabled={
+              submitting
+            }
           >
             Cancelar
           </button>
@@ -594,11 +598,15 @@ function UsuarioFormModal({
           <button
             type="submit"
             className="usuario-form-submit"
-            disabled={submitting}
+            disabled={
+              submitting
+            }
           >
             {submitting
               ? "Guardando..."
-              : "Guardar usuario"}
+              : isEdit
+                ? "Guardar cambios"
+                : "Guardar usuario"}
           </button>
         </div>
       </form>

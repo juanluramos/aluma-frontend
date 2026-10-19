@@ -14,6 +14,8 @@ type Options = {
 
 export class SessionClient {
   private role: Rol | null = null;
+  private userId: number | null = null;
+  getUserId = () => this.userId;
   private listeners = new Set<() => void>();
   getRole = () => this.role;
   subscribe = (listener: () => void) => {
@@ -22,7 +24,9 @@ export class SessionClient {
   };
   private setToken(token: string | null) {
     this.token = token;
-    const role = token ? decodeJwtPayload(token)?.rol : null;
+    const payload = token ? decodeJwtPayload(token) : null;
+    const role = payload?.rol;
+    this.userId = payload && Number.isSafeInteger(payload.id_usuario) && payload.id_usuario > 0 ? payload.id_usuario : null;
     this.role = role === "Usuario" || role === "Operador" || role === "Administrador" ? role : null;
     this.listeners.forEach(listener => listener());
   }

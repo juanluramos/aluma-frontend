@@ -1,0 +1,1 @@
+function e(e,t){let n=t.find(t=>t.id_estado_pago===e)?.nombre_estado;if(n)return n;switch(e){case 1:return`Pendiente`;case 2:return`Pagado`;case 3:return`Devolución`;case 4:return`Cancelado`;default:return`Desconocido`}}export{e as t};

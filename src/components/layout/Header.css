@@ -80,3 +80,81 @@
 .user-info {
   flex-wrap: wrap;
 }
+
+.header-right {
+  position: relative;
+  z-index: 310;
+}
+
+.user-menu-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-small);
+}
+
+.user-options {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 200px;
+  max-width: calc(100vw - 48px);
+  padding: 12px;
+  border: 1px solid #d6d7e5;
+  border-radius: 12px;
+  background: var(--color-white);
+  box-shadow: 0 8px 24px #00000026;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-12px);
+  pointer-events: none;
+  transition: opacity 250ms ease, transform 250ms ease, visibility 0s linear 250ms;
+}
+
+.user-options.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.user-options :is(a, button) {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.user-options :is(a, button):hover {
+  background: var(--color-background);
+  color: var(--color-primary);
+}
+
+.user-menu-trigger:focus-visible,
+.user-options :is(a, button):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-options { transition: none; transform: none; }
+}
+
+@media (max-width: 700px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

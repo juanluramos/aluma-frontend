@@ -1,0 +1,1 @@
+function e(e){let t=String(e.personasEnEspera);return e.aforo===null?{ocupadas:`${e.plazasOcupadas} / Sin límite`,disponibles:`Sin límite`,espera:t,completa:!1,hayEspera:e.personasEnEspera>0}:{ocupadas:`${e.plazasOcupadas}/${e.aforo}`,disponibles:String(e.plazasDisponibles),espera:t,completa:e.plazasOcupadas>=e.aforo,hayEspera:e.personasEnEspera>0}}export{e as t};

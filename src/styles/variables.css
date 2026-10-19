@@ -32,3 +32,23 @@
   --usuarios-toolbar-height: 64px;
 
 }
+:root[data-theme="night"] {
+  color-scheme: dark;
+  --color-primary: #ff7a85;
+  --color-background: #33303d;
+  --color-text: #d6d8e0;
+  --color-white: #20232d;
+  --color-black: #f5f6fa;
+}
+
+:root[data-theme="night"] :is(
+  .usuarios-toolbar,
+  .usuarios-table th,
+  .actividades-tabla th,
+  .inscripciones-tabla th,
+  .contabilidad-tabla th,
+  .cuotas-tabla th,
+  .cuotas-tabla tfoot td
+) {
+  background-color: var(--color-white);
+}

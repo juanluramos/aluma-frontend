@@ -1,0 +1,130 @@
+.confirmar-eliminar-usuario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.confirmar-eliminar-usuario-identidad {
+  margin: 0;
+
+  color: var(--color-black);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  line-height: 1.45;
+}
+
+.confirmar-eliminar-usuario-nombre {
+  font-weight: 700;
+}
+
+.confirmar-eliminar-usuario-codigo {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.confirmar-eliminar-usuario-aviso,
+.confirmar-eliminar-usuario-relacionados {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+}
+
+.confirmar-eliminar-usuario-aviso {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.confirmar-eliminar-usuario-error {
+  padding: 10px 12px;
+
+  border: 1px solid #f1b8bd;
+  border-radius: var(--radius-small);
+
+  background-color: #fdebed;
+
+  color: var(--color-primary);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+}
+
+.confirmar-eliminar-usuario-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid #eeeeee;
+}
+
+.confirmar-eliminar-usuario-cancel,
+.confirmar-eliminar-usuario-submit {
+  min-height: 38px;
+
+  padding: 8px 16px;
+
+  border-radius: var(--radius-small);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.confirmar-eliminar-usuario-cancel {
+  border: 1px solid #dddddd;
+
+  background-color: var(--color-white);
+
+  color: var(--color-text);
+}
+
+.confirmar-eliminar-usuario-cancel:hover {
+  border-color: #bbbbbb;
+}
+
+.confirmar-eliminar-usuario-submit {
+  border: 1px solid var(--color-primary);
+
+  background-color: var(--color-primary);
+
+  color: var(--color-white);
+}
+
+.confirmar-eliminar-usuario-submit:hover {
+  opacity: 0.9;
+}
+
+.confirmar-eliminar-usuario-cancel:disabled,
+.confirmar-eliminar-usuario-submit:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .confirmar-eliminar-usuario-actions {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+  }
+
+  .confirmar-eliminar-usuario-cancel,
+  .confirmar-eliminar-usuario-submit {
+    width: 100%;
+  }
+}

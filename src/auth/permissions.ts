@@ -8,14 +8,21 @@ export type Permission =
   | "verUsuarios"
   | "crearUsuarios"
   | "editarUsuarios"
+  | "editarPerfil"
+  | "cambiarRolUsuario"
   | "cambiarEstadoUsuario"
+  | "eliminarUsuarios"
   | "verActividades"
   | "gestionarActividades"
   | "verInscripciones"
   | "gestionarInscripciones"
-  | "verContabilidad";
+  | "verContabilidad"
+  | "verCuotas"
+  | "gestionarConfiguracionCuota";
 
 export const permissions: Record<Permission, Rol[]> = {
+  editarPerfil: ["Usuario", "Operador", "Administrador"],
+  cambiarRolUsuario: ["Administrador"],
   verDashboard: [
     "Usuario",
     "Operador",
@@ -38,6 +45,10 @@ export const permissions: Record<Permission, Rol[]> = {
   ],
 
   cambiarEstadoUsuario: [
+    "Administrador",
+  ],
+
+  eliminarUsuarios: [
     "Administrador",
   ],
 
@@ -64,6 +75,15 @@ export const permissions: Record<Permission, Rol[]> = {
   ],
 
   verContabilidad: [
+    "Administrador",
+  ],
+
+  verCuotas: [
+    "Operador",
+    "Administrador",
+  ],
+
+  gestionarConfiguracionCuota: [
     "Administrador",
   ],
 };

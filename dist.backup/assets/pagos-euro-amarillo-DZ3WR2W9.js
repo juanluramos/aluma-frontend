@@ -1,0 +1,1 @@
+var e=`/assets/pagos-euro-verde-DdFM4ajG.webp`,t=`/assets/pagos-euro-rojo-nLYRw38-.webp`,n=`/assets/pagos-euro-azul-CmSpUUGL.webp`,r=`/assets/pagos-euro-amarillo-DykDQiQD.webp`;export{e as i,n,t as r,r as t};

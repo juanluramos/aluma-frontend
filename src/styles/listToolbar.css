@@ -1,0 +1,110 @@
+/* Shared dimensions and slots keep controls aligned across all lists. */
+.layout main .list-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.layout .list-toolbar .list-actions {
+  display: grid;
+  grid-template-columns: 240px 150px 150px 180px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+}
+
+.layout .list-toolbar .list-search-wrapper {
+  grid-column: 1;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.layout .list-toolbar :is(.list-search, .list-filter, .list-new-button) {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+}
+
+.layout .list-toolbar .list-search { padding-left: 36px; }
+.layout .list-toolbar .list-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.layout .list-toolbar .list-new-button {
+  grid-column: 4;
+  border-color: transparent;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.layout .list-toolbar :is(.list-search, .list-filter, .list-new-button):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1350px) {
+  .layout main .list-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .layout .list-toolbar .list-actions { width: auto; }
+}
+
+@media (max-width: 1020px) {
+  .layout .list-toolbar .list-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .layout .list-toolbar .list-search-wrapper { grid-column: 1; grid-row: 1; }
+  .layout .list-toolbar .list-filter { grid-column: 2; grid-row: 1; }
+  .layout .list-toolbar .list-filter ~ .list-filter { grid-column: 1; grid-row: 2; }
+  .layout .list-toolbar .list-new-button { grid-column: 2; grid-row: 2; }
+}
+
+@media (max-width: 700px) {
+  .layout .list-toolbar .list-actions { grid-template-columns: minmax(0, 1fr); }
+  .layout .list-toolbar .list-search-wrapper { grid-column: 1; grid-row: 1; }
+  .layout .list-toolbar .list-filter { grid-column: 1; grid-row: 2; }
+  .layout .list-toolbar .list-filter ~ .list-filter { grid-column: 1; grid-row: 3; }
+  .layout .list-toolbar .list-new-button { grid-column: 1; grid-row: 4; }
+}
+
+@media (max-width: 1020px) {
+  .layout main :is(.usuarios-stats, .actividades-stats, .inscripciones-stats) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 44px;
+    gap: 24px;
+    min-height: 128px;
+    padding: 8px 12px;
+    flex-shrink: 0;
+  }
+  .layout main :is(.usuarios-stat, .actividades-stat, .inscripciones-stat) { min-width: 0; }
+  .layout .list-toolbar .list-actions { grid-auto-rows: 36px; }
+}

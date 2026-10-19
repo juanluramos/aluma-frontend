@@ -13,6 +13,7 @@ import {
   getPaymentStatus,
   type PaymentStatus,
 } from "../../services/dashboardService";
+import { socket } from "../../services/socketService";
 
 const COLORS: Record<string, string> = {
   Pagado: "#4CAF50",
@@ -54,11 +55,15 @@ function PaymentStatusChart() {
     };
 
     loadPaymentStatus();
+    socket.on("dashboard:update", loadPaymentStatus);
+    return () => {
+      socket.off("dashboard:update", loadPaymentStatus);
+    };
   }, []);
 
   return (
     <div className="payment-status-chart">
-      <h3>Estado de pagos</h3>
+      <h3>Estado de pagos en caja</h3>
 
       <ResponsiveContainer width="100%" height={230}>
         <PieChart>

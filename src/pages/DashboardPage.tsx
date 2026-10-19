@@ -20,6 +20,12 @@ import inscritosIcon from "../assets/icons/navigation/inscritos-icon.png";
 import AttendanceChart from "../components/dashboard/AttendanceChart";
 import PaymentStatusChart from "../components/dashboard/PaymentStatusChart";
 import WeatherForecast from "../components/dashboard/WeatherForecast";
+import { lineasPlazas } from "../utils/ocupacionActividad";
+
+function textoOcupacion(activity: UpcomingActivity): string {
+  const plazas = lineasPlazas(activity);
+  return plazas.hayEspera ? `${plazas.ocupadas} · ${plazas.espera} en espera` : plazas.ocupadas;
+}
 
 function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary>({
@@ -185,9 +191,7 @@ function DashboardPage() {
                 </div>
 
                 <span>
-                  {activity.aforo !== null
-                    ? `${activity.inscritos}/${activity.aforo} inscritos`
-                    : `${activity.inscritos} inscritos`}
+                  {textoOcupacion(activity)}
                 </span>
               </div>
             ))

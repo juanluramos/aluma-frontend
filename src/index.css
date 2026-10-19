@@ -13,3 +13,8 @@ body {
   font-family: Arial, sans-serif;
  
 }
+body {
+  background-color: var(--color-white, #fff);
+  color: var(--color-black, #000);
+}
+

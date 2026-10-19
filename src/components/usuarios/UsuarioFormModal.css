@@ -88,35 +88,177 @@
 /* OPCIONES */
 
 .usuario-form-options {
+  grid-column: 1 / -1;
+
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
 
-  gap: 20px;
+  gap: 16px;
 
-  padding-top: 24px;
+  padding-top: 4px;
 }
 
 .usuario-form-check {
-  display: inline-flex;
+  display: flex;
+  flex: 1 1 0;
   align-items: center;
 
   gap: 8px;
 
-  color: var(--color-text);
+  min-width: 0;
+
+  color: var(--color-text, #656565);
 
   font-family: var(--font-family);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-small, 14px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
 
   cursor: pointer;
 }
 
+.usuario-form-check span {
+  color: var(--color-text, #656565);
+}
+
 .usuario-form-check input {
+  appearance: none;
+
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin: 0;
+
+  display: grid;
+  place-content: center;
+
+  border: 1.5px solid var(--color-primary, #BE1522);
+  border-radius: 3px;
+
+  background-color: var(--color-white, #ffffff);
+
+  cursor: pointer;
+}
+
+.usuario-form-check input:checked {
+  border-color: var(--color-primary, #BE1522);
+  background-color: var(--color-primary, #BE1522);
+}
+
+.usuario-form-check input:checked::after {
+  content: "";
+
+  width: 4px;
+  height: 8px;
+
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.usuario-form-check input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.usuario-form-check input:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.usuario-form-check:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.inscripcion-usuario-busqueda {
+  display: block;
+}
+
+.usuario-form-grid.inscripcion-busqueda-fila {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+}
+
+.inscripcion-buscar-usuario {
+  position: relative;
+}
+
+.inscripcion-buscar-usuario img {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+
   width: 16px;
   height: 16px;
 
-  accent-color: var(--color-primary);
+  transform: translateY(-50%);
+
+  pointer-events: none;
+}
+
+.inscripcion-buscar-usuario input {
+  padding-left: 36px;
+}
+
+.inscripcion-usuario-resultados {
+  grid-column: 1 / -1;
+
+  max-height: 180px;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+
+  list-style: none;
+
+  border: 1px solid #dddddd;
+  border-radius: var(--radius-small, 6px);
+
+  background-color: var(--color-white, #ffffff);
+}
+
+.inscripcion-usuario-resultados button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 10px;
+
+  border: none;
+  border-radius: var(--radius-small, 6px);
+
+  background: transparent;
+
+  color: var(--color-text, #656565);
+
+  font-family: var(--font-family, Arial, sans-serif);
+  font-size: var(--font-size-small, 14px);
+  text-align: left;
 
   cursor: pointer;
+}
+
+.inscripcion-usuario-resultados button span:last-child:not(:only-child) {
+  color: var(--color-primary, #BE1522);
+  font-weight: 600;
+}
+
+.inscripcion-usuario-resultados button:hover,
+.inscripcion-usuario-resultados button:focus-visible {
+  background-color: var(--color-background, #EEDDDD);
+  outline: none;
+}
+
+.inscripcion-usuario-vacio {
+  padding: 8px 10px;
+
+  color: var(--color-text, #656565);
+
+  font-size: var(--font-size-small, 14px);
 }
 
 /* BOTONES */
@@ -134,7 +276,8 @@
 }
 
 .usuario-form-cancel,
-.usuario-form-submit {
+.usuario-form-submit,
+.usuario-form-eliminar {
   min-height: 38px;
 
   padding: 8px 16px;
@@ -151,6 +294,20 @@
     opacity 0.2s ease,
     border-color 0.2s ease,
     background-color 0.2s ease;
+}
+
+.usuario-form-eliminar {
+  margin-right: auto;
+
+  border: 1px solid var(--color-primary);
+
+  background-color: var(--color-white);
+
+  color: var(--color-primary);
+}
+
+.usuario-form-eliminar:hover {
+  background-color: #fdebed;
 }
 
 .usuario-form-cancel {
@@ -191,7 +348,8 @@
 }
 
 .usuario-form-submit:disabled,
-.usuario-form-cancel:disabled {
+.usuario-form-cancel:disabled,
+.usuario-form-eliminar:disabled {
   opacity: 0.6;
 
   cursor: not-allowed;
@@ -200,7 +358,8 @@
 /* RESPONSIVE */
 
 @media (max-width: 600px) {
-  .usuario-form-grid {
+  .usuario-form-grid,
+  .usuario-form-grid.inscripcion-busqueda-fila {
     grid-template-columns: 1fr;
   }
 
@@ -209,9 +368,6 @@
   }
 
   .usuario-form-options {
-    align-items: flex-start;
-    flex-direction: column;
-
     gap: 10px;
 
     padding-top: 0;
