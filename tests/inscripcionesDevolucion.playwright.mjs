@@ -137,7 +137,7 @@ try {
     for (const titulo of ["Taller pendiente", "Taller devuelto", "Taller cancelado"]) {
       await abrirFila(titulo);
       assert.equal(await page.getByRole("button", { name: "Registrar devolución" }).count(), 0);
-      await page.getByRole("button", { name: titulo === "Taller pendiente" ? "Cerrar" : "Cancelar", exact: true }).click();
+      await page.getByRole("button", { name: titulo === "Taller pendiente" ? "Cerrar modal" : "Cancelar", exact: true }).click();
       await page.getByRole("dialog").waitFor({ state: "detached" });
     }
 
@@ -154,7 +154,7 @@ try {
     assert.equal(await page.getByLabel("Actividad", { exact: true }).inputValue(), "Taller pagado");
     await page.getByText("Esta operación registrará una devolución y cerrará la inscripción.").waitFor();
     await page.getByRole("button", { name: "Cancelar", exact: true }).click();
-    await page.getByRole("heading", { name: "Editar inscripción" }).waitFor();
+    await page.getByRole("heading", { name: "Inscripción", exact: true }).waitFor();
     assert.equal(writes, 0);
 
     await page.getByRole("button", { name: "Registrar devolución" }).click();

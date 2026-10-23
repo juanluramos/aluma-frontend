@@ -56,7 +56,7 @@ try {
     await page.getByText('Introduce un título de entre 1 y 100 caracteres.').waitFor();
     assert.equal(writes, 0);
     await page.getByLabel('Título', { exact: true }).fill('Descartar');
-    await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    await page.getByRole('button', { name: 'Cerrar modal', exact: true }).click();
     await nueva.click();
     assert.equal(await page.getByLabel('Título', { exact: true }).inputValue(), '');
     await page.getByLabel('Título', { exact: true }).fill('Nueva');

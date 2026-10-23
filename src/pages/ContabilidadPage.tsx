@@ -5,13 +5,15 @@ import pagosAzul from "../assets/icons/navigation/pagos-euro-azul.webp";
 import pagosAmarillo from "../assets/icons/navigation/pagos-euro-amarillo.webp";
 import FiltrosMovimiento from "../components/contabilidad/FiltrosMovimiento";
 import MenuExportarContabilidad from "../components/contabilidad/MenuExportarContabilidad";
+import MovimientoModal from "../components/contabilidad/MovimientoModal";
 import MovimientosTable from "../components/contabilidad/MovimientosTable";
-import Paginacion from "../components/Paginacion";
+import Paginacion, { useRegistrosPorPagina } from "../components/Paginacion";
 import logoAluma from "../assets/icons/logo/aluma.webp";
 import {
   getMovimientos,
   getResumenContable,
   type ListadoMovimientos,
+  type MovimientoContable,
   type ResumenContable,
 } from "../services/contabilidadService";
 import { formatoEuro } from "../utils/formatoEuro";
@@ -24,6 +26,24 @@ import {
   type ConsultaContable,
 } from "../utils/filtrosContabilidad";
 import "./ContabilidadPage.css";
+
+const CONSULTA_MOVIL = "(max-width: 700px)";
+
+function useMovil(): boolean {
+  const [movil, setMovil] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia(CONSULTA_MOVIL).matches,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia(CONSULTA_MOVIL);
+    const actualizar = () => setMovil(media.matches);
+    actualizar();
+    media.addEventListener("change", actualizar);
+    return () => media.removeEventListener("change", actualizar);
+  }, []);
+
+  return movil;
+}
 
 const TARJETAS_FILTRADAS = [
   { clave: "totalCobrado", etiqueta: "Total cobrado", icono: pagosVerde, color: "green" },
@@ -38,7 +58,10 @@ function mensajeError(causa: unknown, defecto: string): string {
 }
 
 export default function ContabilidadPage() {
+  const registrosPorPagina = useRegistrosPorPagina();
+  const movil = useMovil();
   const [busqueda, setBusqueda] = useState("");
+  const [detalle, setDetalle] = useState<MovimientoContable | null>(null);
   const [consulta, setConsulta] = useState<ConsultaContable>(consultaInicial);
   const [resumenFiltrado, setResumenFiltrado] = useState<ResumenFiltrado | null>(null);
   const [pendiente, setPendiente] = useState<string | null>(null);
@@ -58,10 +81,14 @@ export default function ContabilidadPage() {
   const errorFechas = errorRangoFechas(consulta.desde, consulta.hasta);
 
   useEffect(() => {
+    if (!movil) setDetalle(null);
+  }, [movil]);
+
+  useEffect(() => {
     if (errorRangoFechas(consulta.desde, consulta.hasta)) return undefined;
     const id = peticion.current;
     let cancelado = false;
-    Promise.allSettled([getResumenContable(consulta), getMovimientos(consulta)])
+    Promise.allSettled([getResumenContable(consulta), getMovimientos(consulta, registrosPorPagina)])
       .then(([resultadoResumen, resultadoListado]) => {
         if (cancelado || id !== peticion.current) return;
         if (resultadoResumen.status === "fulfilled") {
@@ -89,7 +116,7 @@ export default function ContabilidadPage() {
     return () => {
       cancelado = true;
     };
-  }, [consulta, reintento]);
+  }, [consulta, reintento, registrosPorPagina]);
 
   useEffect(() => () => {
     if (temporizador.current) window.clearTimeout(temporizador.current);
@@ -215,18 +242,21 @@ export default function ContabilidadPage() {
 
       {primeraCarga ? null : (
         <>
-          <div className="contabilidad-acciones">
-            <MenuExportarContabilidad
-              deshabilitado={exportando || Boolean(errorFechas)}
-              onDescargar={() => void exportar("descargar")}
-              onImprimir={() => void exportar("imprimir")}
-            />
-            <FiltrosMovimiento
-              consulta={consulta}
-              busqueda={busqueda}
-              onAplicar={(filtros) => aplicar(filtros)}
-              onBusqueda={cambiarBusqueda}
-            />
+          <div className="contabilidad-list-toolbar">
+            <p className="contabilidad-resultados">Mostrando {listado?.total ?? 0} resultados</p>
+            <div className="contabilidad-acciones">
+              <MenuExportarContabilidad
+                deshabilitado={exportando || Boolean(errorFechas)}
+                onDescargar={() => void exportar("descargar")}
+                onImprimir={() => void exportar("imprimir")}
+              />
+              <FiltrosMovimiento
+                consulta={consulta}
+                busqueda={busqueda}
+                onAplicar={(filtros) => aplicar(filtros)}
+                onBusqueda={cambiarBusqueda}
+              />
+            </div>
           </div>
           {progresoExportacion ? (
             <p className="contabilidad-estado" role="status">{progresoExportacion}</p>
@@ -255,6 +285,7 @@ export default function ContabilidadPage() {
               movimientos={listado.movimientos}
               orden={consulta.orden}
               onOrdenar={() => aplicar({ orden: consulta.orden === "desc" ? "asc" : "desc" })}
+              onSeleccionar={movil ? setDetalle : undefined}
             />
           ) : null}
           {!cargando && !errorFechas && listado && listado.total > 0 ? (
@@ -262,6 +293,7 @@ export default function ContabilidadPage() {
           ) : null}
         </>
       )}
+      {movil && detalle ? <MovimientoModal movimiento={detalle} onClose={() => setDetalle(null)} /> : null}
     </div>
   );
 }

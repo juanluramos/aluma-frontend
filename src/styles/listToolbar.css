@@ -108,3 +108,85 @@
   .layout main :is(.usuarios-stat, .actividades-stat, .inscripciones-stat) { min-width: 0; }
   .layout .list-toolbar .list-actions { grid-auto-rows: 36px; }
 }
+
+@media (max-width: 700px) {
+  .layout main :is(.usuarios-stats, .actividades-stats, .inscripciones-stats, .cuotas-stats, .contabilidad-stats) {
+    display: grid;
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: auto;
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .layout main :is(.usuarios-stat, .actividades-stat, .inscripciones-stat, .cuotas-stat, .contabilidad-stat) {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    min-width: 0;
+    padding: 8px 4px;
+    text-align: center;
+    background-color: var(--color-white);
+    border-radius: var(--radius-medium);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .layout main :is(.usuarios-stat, .actividades-stat, .inscripciones-stat, .cuotas-stat, .contabilidad-stat) > div:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .layout main :is(
+    .usuarios-stat-icon,
+    .actividades-stat-icon,
+    .inscripciones-stat-icon,
+    .cuotas-stat-icon,
+    .contabilidad-stat-icon
+  ) {
+    width: 40px;
+    height: 40px;
+  }
+
+  .layout main :is(
+    .usuarios-stat-icon,
+    .actividades-stat-icon,
+    .inscripciones-stat-icon,
+    .cuotas-stat-icon,
+    .contabilidad-stat-icon
+  ) img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .layout main :is(
+    .usuarios-stat-label,
+    .actividades-stat-label,
+    .inscripciones-stat-label,
+    .cuotas-stat-label,
+    .contabilidad-stat-label
+  ) {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .layout main :is(
+    .usuarios-stat-value,
+    .actividades-stat-value,
+    .inscripciones-stat-value,
+    .cuotas-stat-value,
+    .contabilidad-stat-value
+  ) {
+    margin-top: 2px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+}

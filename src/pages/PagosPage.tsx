@@ -7,7 +7,7 @@ import { hasPermission } from "../auth/permissions";
 import FiltroEstado from "../components/FiltroEstado";
 import InscripcionFormModal from "../components/inscripciones/InscripcionFormModal";
 import PagosTable from "../components/pagos/PagosTable";
-import Paginacion, { REGISTROS_POR_PAGINA } from "../components/Paginacion";
+import Paginacion, { useRegistrosPorPagina } from "../components/Paginacion";
 import { useSesionInscripcion } from "../components/inscripciones/useSesionInscripcion";
 import { usePreferenciaSesion } from "../hooks/usePreferenciaSesion";
 import { getEstadosInscripcion, getEstadosPago, getMetodosPago } from "../services/catalogoPagoService";
@@ -47,6 +47,7 @@ export default function PagosPage() {
   const [estadoFiltro, setEstadoFiltro] = usePreferenciaSesion<string[]>("pagos.estadoFiltro", []);
   const [metodoFiltro, setMetodoFiltro] = usePreferenciaSesion<string[]>("pagos.metodoFiltro", []);
   const [pagina, setPagina] = usePreferenciaSesion<number>("pagos.pagina", 1);
+  const registrosPorPagina = useRegistrosPorPagina();
   const [direccionOrden, setDireccionOrden] = usePreferenciaSesion<DireccionOrdenPago>(
     "pagos.direccionOrden",
     "desc",
@@ -129,9 +130,9 @@ export default function PagosPage() {
     () => ordenarPagosPorFecha(filtrarPagos(pagos, busqueda, estados, metodos, estadoFiltro, metodoFiltro), direccionOrden),
     [pagos, busqueda, estados, metodos, estadoFiltro, metodoFiltro, direccionOrden],
   );
-  const totalPaginas = Math.max(1, Math.ceil(ordenados.length / REGISTROS_POR_PAGINA));
+  const totalPaginas = Math.max(1, Math.ceil(ordenados.length / registrosPorPagina));
   const paginaActual = Math.min(pagina, totalPaginas);
-  const paginaPagos = ordenados.slice((paginaActual - 1) * REGISTROS_POR_PAGINA, paginaActual * REGISTROS_POR_PAGINA);
+  const paginaPagos = ordenados.slice((paginaActual - 1) * registrosPorPagina, paginaActual * registrosPorPagina);
 
   function consultarPago() {
     recargar().then((datos) => {

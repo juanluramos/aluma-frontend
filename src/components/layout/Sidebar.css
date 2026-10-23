@@ -65,6 +65,32 @@
   object-fit: contain;
 }
 
+@media (max-width: 700px) {
+  .sidebar-item :is(a, button) {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .sidebar-icon {
+    width: 25px;
+    height: 25px;
+    flex: 0 0 25px;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .sidebar-item a[href="/usuarios"] .sidebar-icon { transform: scale(1.09); }
+  .sidebar-item a[href="/cuotas"] .sidebar-icon { transform: scale(0.85); }
+  .sidebar-item a[href="/actividades"] .sidebar-icon { transform: scale(0.77); }
+  .sidebar-item a[href="/inscripciones"] .sidebar-icon { transform: scale(0.79); }
+  .sidebar-item a[href="/contabilidad"] .sidebar-icon { transform: scale(0.89); }
+
+  .sidebar-item span {
+    white-space: nowrap;
+    line-height: 25px;
+  }
+}
+
 .icon-hover {
   display: none;
 }

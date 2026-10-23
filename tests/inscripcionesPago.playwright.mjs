@@ -170,7 +170,7 @@ try {
     await page.getByLabel("Fecha de pago").fill("2026-10-14");
     const lecturasAntes = lecturas;
     await page.getByRole("button", { name: "Cancelar", exact: true }).click();
-    await page.getByRole("heading", { name: "Editar inscripción" }).waitFor();
+    await page.getByRole("heading", { name: "Inscripción", exact: true }).waitFor();
     assert.equal(writes, 0);
     assert.equal(lecturas, lecturasAntes);
     assert.equal(await page.getByLabel("Comentarios", { exact: true }).inputValue(), "Nota inicial");

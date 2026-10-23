@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { hasPermission } from "../src/auth/permissions.ts";
-import { construirComentarioInscripcion, construirDatosInscripcion } from "../src/utils/inscripcionFormPayload.ts";
+import { construirDatosInscripcion, construirEdicionInscripcion } from "../src/utils/inscripcionFormPayload.ts";
 import { valoresDesdeInscripcion, valoresIniciales } from "../src/utils/inscripcionFormState.ts";
 import type { Inscripcion } from "../src/types/inscripcion.ts";
 import { validarInscripcion } from "../src/utils/validacionesInscripcion.ts";
@@ -74,21 +74,25 @@ const inscrita: Inscripcion = {
   Actividad: { id_actividad: 12, titulo: "Taller de cerámica" },
 };
 
-test("La edición precarga el comentario y el PUT solo envía ese campo", () => {
+test("La edición precarga usuario y actividad y el PUT no envía el precio", () => {
   assert.deepEqual(valoresDesdeInscripcion(inscrita), {
     id_usuario: "9",
     id_actividad: "12",
     comentario: "  Nota inicial  ",
   });
   assert.equal(valoresDesdeInscripcion({ ...inscrita, comentario: null }).comentario, "");
-  const cuerpo = construirComentarioInscripcion({
+  const cuerpo = construirEdicionInscripcion({
     id_usuario: "9",
     id_actividad: "12",
     comentario: "  Nota revisada  ",
   });
-  assert.deepEqual(cuerpo, { comentario: "Nota revisada" });
-  assert.deepEqual(Object.keys(cuerpo), ["comentario"]);
-  assert.equal(construirComentarioInscripcion({
+  assert.deepEqual(cuerpo, {
+    id_usuario: 9,
+    id_actividad: 12,
+    comentario: "Nota revisada",
+  });
+  assert.equal("precioAplicado" in cuerpo, false);
+  assert.equal(construirEdicionInscripcion({
     id_usuario: "1",
     id_actividad: "2",
     comentario: "   ",
@@ -97,7 +101,10 @@ test("La edición precarga el comentario y el PUT solo envía ese campo", () => 
     id_usuario: "",
     id_actividad: "",
     comentario: "Nota",
-  }, true), {});
+  }), {
+    id_usuario: "Selecciona un usuario.",
+    id_actividad: "Selecciona una actividad.",
+  });
 });
 
 test("Crear inscripciones sigue el permiso de consulta y elegir usuario el de gestión", () => {

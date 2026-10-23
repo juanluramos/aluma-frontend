@@ -16,10 +16,19 @@ export interface InscripcionComentarioPayload {
   comentario: string | null;
 }
 
-// La edición solo envía el comentario. El PUT también acepta precio, pago y referencias,
-// pero cambiarlos no recalcula la tarifa y puede crear cobros o bloquear el historial.
-export function construirComentarioInscripcion(datos: InscripcionFormState): InscripcionComentarioPayload {
-  return { comentario: datos.comentario.trim() || null };
+export interface InscripcionEdicionPayload {
+  id_usuario: number;
+  id_actividad: number;
+  comentario: string | null;
+}
+
+// La edición envía usuario, actividad y comentario. El precio aplicado no se incluye.
+export function construirEdicionInscripcion(datos: InscripcionFormState): InscripcionEdicionPayload {
+  return {
+    id_usuario: Number(datos.id_usuario),
+    id_actividad: Number(datos.id_actividad),
+    comentario: datos.comentario.trim() || null,
+  };
 }
 
 export function construirDatosInscripcion(

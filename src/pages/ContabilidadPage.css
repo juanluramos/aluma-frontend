@@ -81,12 +81,28 @@
   color: var(--color-primary);
 }
 
+.contabilidad-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 4px 0 16px;
+}
+
+.contabilidad-resultados {
+  margin: 0 0 0 12px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 12px;
+}
+
 .contabilidad-acciones {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin: 28px 0 16px;
+  margin: 0;
 }
 
 .contabilidad-acciones .contabilidad-filtros {
@@ -198,6 +214,80 @@
 
 @media (max-width: 400px) {
   .contabilidad-filtros-options { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 700px) {
+  .contabilidad-list-toolbar {
+    margin-top: 0;
+    gap: 8px;
+  }
+
+  .contabilidad-resultados {
+    margin-top: 8px;
+  }
+
+  .contabilidad-acciones {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .contabilidad-acciones .contabilidad-filtros {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .contabilidad-acciones .contabilidad-filtro-buscar {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .contabilidad-acciones .contabilidad-filtro-buscar input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .contabilidad-acciones .contabilidad-exportar,
+  .contabilidad-acciones .contabilidad-filtros-menu,
+  .contabilidad-acciones .contabilidad-filtros-boton {
+    flex-shrink: 0;
+  }
+
+  .contabilidad-filtros-options {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .contabilidad-filtros-fechas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+
+  .contabilidad-filtros-fechas legend {
+    display: none;
+  }
+
+  .contabilidad-filtros-fechas .contabilidad-filtros-aviso {
+    grid-column: 1 / -1;
+  }
+
+  .contabilidad-filtros-fechas input {
+    padding-inline: 6px;
+  }
+
+  .contabilidad-filtros-options fieldset:not(.contabilidad-filtros-fechas) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+  }
+
+  .contabilidad-filtros-options fieldset:not(.contabilidad-filtros-fechas) legend {
+    grid-column: 1 / -1;
+  }
 }
 
 .contabilidad-exportar {
@@ -400,6 +490,78 @@
   font-size: 10px;
 }
 
-.contabilidad-importe-negativo {
+.contabilidad-tabla tbody tr.contabilidad-linea-negativa > td {
   color: var(--color-primary);
+}
+
+@media (max-width: 700px) {
+  .contabilidad-tabla,
+  .contabilidad-tabla thead,
+  .contabilidad-tabla tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .contabilidad-tabla tr {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) minmax(0, 1fr) max-content;
+    width: 100%;
+  }
+
+  .contabilidad-tabla :is(th, td),
+  .contabilidad-tabla :is(th, td):nth-child(n) {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 4px 6px;
+  }
+
+  .contabilidad-tabla :is(th, td):nth-child(2),
+  .contabilidad-tabla :is(th, td):nth-child(5),
+  .contabilidad-tabla :is(th, td):nth-child(6) {
+    display: none;
+  }
+
+  .contabilidad-tabla :is(th, td):nth-child(1) {
+    width: max-content;
+    min-width: max-content;
+    padding-inline: 4px;
+    overflow: visible;
+    white-space: nowrap;
+  }
+
+  .contabilidad-tabla :is(th, td):nth-child(7) {
+    width: max-content;
+    min-width: max-content;
+    padding-inline: 4px 8px;
+    overflow: visible;
+    white-space: nowrap;
+  }
+
+  .contabilidad-fecha-siglo { display: none; }
+
+  .contabilidad-tabla tbody tr.contabilidad-fila {
+    cursor: pointer;
+  }
+
+  .contabilidad-tabla tbody tr.contabilidad-fila:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .modal-contabilidad .usuario-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .modal-contabilidad .usuario-form-field-full {
+    grid-column: 1 / -1;
+  }
+
+  .modal-contabilidad .movimiento-negativo input {
+    color: var(--color-primary);
+    -webkit-text-fill-color: var(--color-primary);
+    opacity: 1;
+  }
 }

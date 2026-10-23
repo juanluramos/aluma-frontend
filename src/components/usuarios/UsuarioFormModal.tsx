@@ -9,6 +9,7 @@ import {
 } from "../../utils/validacionesUsuario";
 
 import {
+  useEffect,
   useState,
   type SubmitEvent,
 } from "react";
@@ -20,6 +21,7 @@ import { useRole } from "../../auth/useRole";
 import UsuarioDatosPersonales from "./UsuarioDatosPersonales";
 import UsuarioAcceso from "./UsuarioAcceso";
 import UsuarioEstadoSocio from "./UsuarioEstadoSocio";
+import UsuarioMovimientos from "./UsuarioMovimientos";
 
 import {
   createUsuario,
@@ -61,6 +63,13 @@ function UsuarioFormModal({
   const puedeCambiarEstado = hasPermission(role, "cambiarEstadoUsuario");
   const puedeMarcarChecks = role === "Operador" || role === "Administrador";
   const mostrarEliminar = isEdit && typeof onSolicitarEliminar === "function";
+  const [pestana, setPestana] = useState<"datos" | "movimientos">("datos");
+  const [editando, setEditando] = useState(false);
+  const camposBloqueados = isEdit && !editando;
+
+  useEffect(() => {
+    setEditando(false);
+  }, [isOpen, usuario?.id_usuario]);
 
   const valoresIniciales = obtenerValoresIniciales(mode, usuario);
 
@@ -405,10 +414,11 @@ function UsuarioFormModal({
 
   return (
     <Modal
+      className="modal-usuario"
       isOpen={isOpen}
       title={
         isEdit
-          ? "Editar usuario"
+          ? "Usuario"
           : role === "Operador"
             ? "Nuevo socio"
             : "Nuevo usuario"
@@ -417,14 +427,34 @@ function UsuarioFormModal({
         handleClose
       }
     >
+      {isEdit && usuario ? (
+        <div className="usuario-pestanas" role="tablist" aria-label="Secciones del usuario">
+          <button type="button" className="usuario-pestana" role="tab" id="usuario-tab-datos"
+            aria-selected={pestana === "datos"} aria-controls="usuario-panel-datos"
+            onClick={() => setPestana("datos")}>
+            Datos
+          </button>
+          <button type="button" className="usuario-pestana" role="tab" id="usuario-tab-movimientos"
+            aria-selected={pestana === "movimientos"} aria-controls="usuario-panel-movimientos"
+            onClick={() => setPestana("movimientos")}>
+            Movimientos
+          </button>
+        </div>
+      ) : null}
+      <div className={isEdit && usuario ? "usuario-paneles" : undefined}>
       <form
-        className="usuario-form"
+        id="usuario-panel-datos"
+        role={isEdit ? "tabpanel" : undefined}
+        aria-labelledby={isEdit ? "usuario-tab-datos" : undefined}
+        aria-hidden={isEdit && usuario ? pestana !== "datos" : undefined}
+        inert={isEdit && usuario ? pestana !== "datos" : undefined}
+        className={isEdit ? "usuario-form usuario-form-editar" : "usuario-form"}
         onSubmit={
           handleSubmit
         }
         noValidate
       >
-        <div className="usuario-form-grid">
+        <fieldset className="usuario-form-grid" disabled={camposBloqueados}>
 
           {/* DATOS PERSONALES */}
 
@@ -555,7 +585,7 @@ function UsuarioFormModal({
               setComentario
             }
           />
-        </div>
+        </fieldset>
 
         {/* ERROR GENERAL */}
 
@@ -582,34 +612,55 @@ function UsuarioFormModal({
             </button>
           ) : null}
 
-          <button
-            type="button"
-            className="usuario-form-cancel"
-            onClick={
-              handleClose
-            }
-            disabled={
-              submitting
-            }
-          >
-            Cancelar
-          </button>
+          {camposBloqueados ? (
+            <button
+              key="editar"
+              type="button"
+              className="usuario-form-submit form-accion-principal"
+              onClick={(event) => {
+                event.preventDefault();
+                setEditando(true);
+              }}
+            >
+              Editar
+            </button>
+          ) : (
+            <>
+              {!isEdit && (
+                <button
+                  type="button"
+                  className="usuario-form-cancel"
+                  onClick={handleClose}
+                  disabled={submitting}
+                >
+                  Cancelar
+                </button>
+              )}
 
-          <button
-            type="submit"
-            className="usuario-form-submit"
-            disabled={
-              submitting
-            }
-          >
-            {submitting
-              ? "Guardando..."
-              : isEdit
-                ? "Guardar cambios"
-                : "Guardar usuario"}
-          </button>
+              <button
+                key="guardar"
+                type="submit"
+                className={isEdit ? "usuario-form-submit form-accion-principal" : "usuario-form-submit"}
+                disabled={submitting}
+              >
+                {submitting
+                  ? "Guardando..."
+                  : isEdit
+                    ? "Guardar cambios"
+                    : "Guardar usuario"}
+              </button>
+            </>
+          )}
         </div>
       </form>
+      {isEdit && usuario ? (
+        <div className="usuario-panel-movimientos" role="tabpanel" id="usuario-panel-movimientos"
+          aria-labelledby="usuario-tab-movimientos"
+          aria-hidden={pestana !== "movimientos"} inert={pestana !== "movimientos"}>
+          <UsuarioMovimientos idUsuario={usuario.id_usuario} />
+        </div>
+      ) : null}
+      </div>
     </Modal>
   );
 }

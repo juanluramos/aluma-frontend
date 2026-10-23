@@ -1,8 +1,14 @@
+export type SeleccionActividad = {
+  ids: number[];
+  sinActividad: boolean;
+};
+
 export type ConsultaContable = {
   desde: string;
   hasta: string;
   tipo: "Todos" | "Cobro" | "Devolución" | "Ajuste";
   q: string;
+  actividad: SeleccionActividad | null;
   pagina: number;
   orden: "asc" | "desc";
 };
@@ -12,6 +18,7 @@ export const consultaInicial: ConsultaContable = {
   hasta: "",
   tipo: "Todos",
   q: "",
+  actividad: null,
   pagina: 1,
   orden: "desc",
 };
@@ -33,6 +40,15 @@ export function parametrosContables(consulta: ConsultaContable, listado: boolean
   if (consulta.hasta) params.set("hasta", consulta.hasta);
   if (consulta.tipo !== "Todos") params.set("tipo", consulta.tipo);
   if (consulta.q) params.set("q", consulta.q);
+  if (consulta.actividad) {
+    const { ids, sinActividad } = consulta.actividad;
+    params.set(
+      "actividad",
+      ids.length === 0 && !sinActividad
+        ? "ninguna"
+        : [...ids.map(String), ...(sinActividad ? ["sin"] : [])].join(","),
+    );
+  }
   if (listado) {
     params.set("pagina", String(consulta.pagina));
     params.set("orden", consulta.orden);
@@ -43,5 +59,5 @@ export function parametrosContables(consulta: ConsultaContable, listado: boolean
 }
 
 export function hayFiltroContable(consulta: ConsultaContable): boolean {
-  return Boolean(consulta.desde || consulta.hasta || consulta.q || consulta.tipo !== "Todos");
+  return Boolean(consulta.desde || consulta.hasta || consulta.q || consulta.actividad || consulta.tipo !== "Todos");
 }

@@ -173,6 +173,20 @@ function cancelar(): void {
   flushSync(() => boton.click());
 }
 
+function habilitarEdicion(): void {
+  const boton = [...document.querySelectorAll('.usuario-form-actions button')].find(
+    (elemento) => elemento.textContent?.trim() === 'Editar',
+  ) as HTMLButtonElement | undefined;
+  comprobar(boton, 'Falta el botón Editar');
+  flushSync(() => boton.click());
+}
+
+function cerrarEdicion(): void {
+  const boton = document.querySelector('.modal-close') as HTMLButtonElement | null;
+  comprobar(boton, 'Falta el botón de cerrar');
+  flushSync(() => boton.click());
+}
+
 async function guardar(): Promise<void> {
   flushSync(() => document.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await new Promise(resolve => setTimeout(resolve, 50));
@@ -235,12 +249,15 @@ async function ejecutar(): Promise<void> {
   // 2) Editar A → modificar → cancelar → abrir B → datos de B
   cancelar();
   abrirEdicion(estado.usuarioA);
+  comprobar((document.getElementById('nombre') as HTMLInputElement).matches(':disabled'), 'Al abrir, el nombre no se puede modificar');
+  comprobar(!document.querySelector('.usuario-form-cancel'), 'La vista de usuario no muestra Cancelar');
+  habilitarEdicion();
   cambiar('nombre', 'Ana modificada');
   cambiar('email', 'ana-modificada@example.test');
   marcarCheckbox(0, false);
   marcarCheckbox(1, false);
   cambiar('comentario', 'Cambios de A no deben filtrarse a B');
-  cancelar();
+  cerrarEdicion();
   comprobar(estado.usuarioSeleccionado === null, 'Edición se desmonta al cancelar');
   abrirEdicion(estado.usuarioB);
   comprobarFormulario(obtenerValoresIniciales('edit', usuarioB), 'Edición de B tras cancelar A');
@@ -248,8 +265,9 @@ async function ejecutar(): Promise<void> {
   comprobar(valor('email') !== 'ana-modificada@example.test', 'B no conserva el email editado de A');
 
   // 3) Editar A → guardar → reabrir A → datos actualizados desde la respuesta/estado
-  cancelar();
+  cerrarEdicion();
   abrirEdicion(estado.usuarioA);
+  habilitarEdicion();
   cambiar('nombre', 'Ana Actualizada');
   cambiar('comentario', 'Guardado OK');
   marcarCheckbox(0, false);

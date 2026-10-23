@@ -6,7 +6,7 @@ import { nombreCompletoUsuario, usuarioDeSesion, type UsuarioSesion } from "../.
 import { Link, useLocation } from "react-router-dom";
 import "./Header.css";
 
-function Header() {
+function Header({ menuAbierto = false, onMenu }: { menuAbierto?: boolean; onMenu?: () => void }) {
   const role = useRole();
   const userId = useSyncExternalStore(session.subscribe, session.getUserId);
   const [usuario, setUsuario] = useState<UsuarioSesion | null>(null);
@@ -108,31 +108,45 @@ function Header() {
 
   return (
     <header className="header">
-      <div className="header-left">
-        <h1>{section.title}</h1>
-        <p>{section.subtitle}</p>
-      </div>
+      <button
+        type="button"
+        className="menu-hamburguesa"
+        aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+        aria-expanded={menuAbierto}
+        aria-controls="menu-lateral"
+        onClick={onMenu}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+      <div className="header-identidad">
+        <div className="header-left">
+          <h1>{section.title}</h1>
+          <p>{section.subtitle}</p>
+        </div>
 
-      <div className="header-right" ref={containerRef}
-        onBlur={event => {
-          if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
-        }}>
-        <button type="button" className="user-info user-menu-trigger" ref={triggerRef}
-          aria-label="Opciones de usuario" aria-expanded={open} aria-controls="user-options"
-          onClick={() => setOpen(value => !value)}>
-          <span className="user-avatar" aria-hidden="true">{iniciales || '?'}</span>
-          <span className="user-data">
-            <span className="user-name">{nombre || 'Mi cuenta'}</span>
-            <span className="user-role">{role ?? "Sin rol"}</span>
-          </span>
-        </button>
-        <div id="user-options" ref={panelRef} className={`user-options${open ? ' is-open' : ''}`}
-          role="group" aria-label="Opciones de usuario" aria-hidden={!open} inert={!open}>
-          {hasPermission(role, "editarPerfil") && <Link to="/perfil" onClick={closeMenu}>Mi perfil</Link>}
-          <button type="button" onClick={() => {
-            closeMenu();
-            void logout().catch(() => {});
-          }}>Cerrar sesión</button>
+        <div className="header-right" ref={containerRef}
+          onBlur={event => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+          }}>
+          <button type="button" className="user-info user-menu-trigger" ref={triggerRef}
+            aria-label="Opciones de usuario" aria-expanded={open} aria-controls="user-options"
+            onClick={() => setOpen(value => !value)}>
+            <span className="user-avatar" aria-hidden="true">{iniciales || '?'}</span>
+            <span className="user-data">
+              <span className="user-name">{nombre || 'Mi cuenta'}</span>
+              <span className="user-role">{role ?? "Sin rol"}</span>
+            </span>
+          </button>
+          <div id="user-options" ref={panelRef} className={`user-options${open ? ' is-open' : ''}`}
+            role="group" aria-label="Opciones de usuario" aria-hidden={!open} inert={!open}>
+            {hasPermission(role, "editarPerfil") && <Link to="/perfil" onClick={closeMenu}>Mi perfil</Link>}
+            <button type="button" onClick={() => {
+              closeMenu();
+              void logout().catch(() => {});
+            }}>Cerrar sesión</button>
+          </div>
         </div>
       </div>
     </header>

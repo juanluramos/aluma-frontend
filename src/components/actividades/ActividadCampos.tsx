@@ -30,7 +30,13 @@ export default function ActividadCampos({ valores, errores, disabled, soloLectur
         "aria-describedby": errores[campo] ? `${id}-error` : undefined,
         onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => onChange(campo, event.target.value),
       };
-      return <div key={campo} className={`usuario-form-field${campo === "titulo" || campo === "comentario" ? " usuario-form-field-full" : ""}`}>
+      const linea = campo === "fecha" ? " actividad-campo-fecha"
+        : campo === "aforo" ? " actividad-campo-aforo"
+        : campo === "id_estado_actividad" ? " actividad-campo-estado"
+        : campo === "importeSocio" ? " actividad-campo-socio"
+        : campo === "importeNoSocio" ? " actividad-campo-nosocio"
+        : "";
+      return <div key={campo} className={`usuario-form-field${campo === "titulo" || campo === "comentario" ? " usuario-form-field-full" : ""}${linea}`}>
         <label htmlFor={id}>{etiqueta}</label>
         {tipo === "select" ? <select {...props} required>
           <option value="">Selecciona un estado</option>

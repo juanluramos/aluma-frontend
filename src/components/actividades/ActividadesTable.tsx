@@ -1,6 +1,7 @@
 
 import { ESTADOS_ACTIVIDAD } from "../../utils/actividadFormState";
 import type { Actividad } from "../../types/actividad";
+import { textoFechaInscripcion } from "../../utils/fechaCalendario";
 import { lineasPlazas } from "../../utils/ocupacionActividad";
 import type { CampoOrden, DireccionOrden } from "../../utils/actividadesListado";
 
@@ -31,6 +32,20 @@ function claseEstado(id: number): string {
     default:
       return "estado-desconocido";
   }
+}
+
+function FechaActividad({ valor }: { valor: string | null }) {
+  if (!valor) return "Sin fecha";
+  const texto = textoFechaInscripcion(valor);
+  const partes = /^(\d{2}\/\d{2}\/)(\d{2})(\d{2})$/.exec(texto);
+  if (!partes) return texto === "-" ? "Sin fecha" : texto;
+  return (
+    <>
+      {partes[1]}
+      <span className="actividades-fecha-siglo">{partes[2]}</span>
+      {partes[3]}
+    </>
+  );
 }
 
 function iconoOrden(
@@ -91,7 +106,10 @@ export default function ActividadesTable({
               </span>
             </button>
           </th>
-          <th>Ocupadas</th>
+          <th>
+            <span className="actividades-ocupadas-largo">Ocupadas</span>
+            <abbr className="actividades-ocupadas-corto" title="Ocupadas">Ocu</abbr>
+          </th>
           <th>Disponibles</th>
           <th>En espera</th>
           <th>Precio socio</th>
@@ -127,12 +145,7 @@ export default function ActividadesTable({
               </td>
 
               <td>
-                {actividad.fecha
-                  ? new Date(actividad.fecha).toLocaleDateString(
-                      "es-ES",
-                      { timeZone: "UTC" }
-                    )
-                  : "Sin fecha"}
+                <FechaActividad valor={actividad.fecha} />
               </td>
 
               <td className={plazas.completa ? "actividades-plazas-completas" : undefined}>

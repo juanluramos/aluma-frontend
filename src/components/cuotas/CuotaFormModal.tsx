@@ -48,8 +48,14 @@ export default function CuotaFormModal({ isOpen, mode, cuota, onClose, onCreada,
   const [confirmando, setConfirmando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [errorBorrado, setErrorBorrado] = useState("");
+  const [editando, setEditando] = useState(false);
   const envio = useRef(false);
   const borrando = useRef(false);
+  const camposBloqueados = Boolean(cuotaEdicion) && !editando;
+
+  useEffect(() => {
+    setEditando(false);
+  }, [isOpen, cuotaEdicion?.id_cuota]);
 
   useEffect(() => {
     let activo = true;
@@ -153,14 +159,14 @@ export default function CuotaFormModal({ isOpen, mode, cuota, onClose, onCreada,
 
   return (
     <>
-      <Modal isOpen={isOpen} title={cuotaEdicion ? "Editar cuota" : "Nueva cuota"} onClose={cerrar}>
-        <form className="usuario-form" noValidate onSubmit={guardar} aria-busy={ocupado}>
+      <Modal isOpen={isOpen} title={cuotaEdicion ? "Cuotas" : "Nueva cuota"} onClose={cerrar}>
+        <form className={cuotaEdicion ? "usuario-form usuario-form-editar" : "usuario-form"} noValidate onSubmit={guardar} aria-busy={ocupado}>
           <CuotaCampos
             valores={valores}
             errores={errores}
             usuarios={usuarios}
             cargandoUsuarios={cargandoUsuarios}
-            disabled={ocupado}
+            disabled={ocupado || camposBloqueados}
             onChange={cambiar}
           />
           {errorUsuarios && <div className="usuario-form-error" role="alert">{errorUsuarios}</div>}
@@ -171,12 +177,28 @@ export default function CuotaFormModal({ isOpen, mode, cuota, onClose, onCreada,
                 Eliminar cuota
               </button>
             ) : null}
-            <button type="button" className="usuario-form-cancel" onClick={cerrar} disabled={ocupado}>
-              Cancelar
-            </button>
-            <button type="submit" className="usuario-form-submit" disabled={ocupado || cargandoUsuarios || usuarios.length === 0}>
-              {guardando ? "Guardando..." : cuotaEdicion ? "Guardar cambios" : "Guardar cuota"}
-            </button>
+            {camposBloqueados ? (
+              <button
+                key="editar"
+                type="button"
+                className="usuario-form-submit form-accion-principal"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setEditando(true);
+                }}
+              >
+                Editar
+              </button>
+            ) : (
+              <button
+                key="guardar"
+                type="submit"
+                className={cuotaEdicion ? "usuario-form-submit form-accion-principal" : "usuario-form-submit"}
+                disabled={ocupado || cargandoUsuarios || usuarios.length === 0}
+              >
+                {guardando ? "Guardando..." : cuotaEdicion ? "Guardar cambios" : "Guardar cuota"}
+              </button>
+            )}
           </div>
         </form>
       </Modal>

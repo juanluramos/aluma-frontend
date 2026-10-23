@@ -1,7 +1,10 @@
 import { limpiarPreferenciasSesion } from "../utils/preferenciasSesion";
 import { SessionClient } from './sessionClient';
 
-export const API_URL = (import.meta.env?.VITE_API_URL ?? 'http://localhost:3000/api').replace(/\/$/, '');
+const entorno = import.meta.env as { DEV?: boolean; VITE_API_URL?: string } | undefined;
+// En desarrollo la API se pide al mismo origen. Vite la reenvía a este equipo,
+// también cuando la página se abre desde el móvil en la red local.
+export const API_URL = (entorno?.VITE_API_URL ?? (entorno?.DEV ? "/api" : "http://localhost:3000/api")).replace(/\/$/, "");
 const ACTIVITY_KEY = 'aluma.lastActivity';
 const LOGOUT_KEY = 'aluma.logout';
 let tracking = false;

@@ -457,6 +457,10 @@
     overflow: visible;
     border-radius: 0;
   }
+
+  .login-panel-texto {
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 560px) {
@@ -472,10 +476,77 @@
   .login-pilares {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+  }
+
+  .login-pilares li {
+    flex: 0 0 auto;
+    min-width: 0;
   }
 
   .login-opciones {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .login-panel,
+  .login-acceso {
+    height: 100vh;
+    height: 100svh;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  .login-acceso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+  }
+
+  .login-acceso > * {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .login-acceso h2,
+  .login-subtitulo,
+  .login-enlace,
+  .login-alta button {
+    text-align: center;
+  }
+
+  .login-subtitulo {
+    margin-bottom: 12px;
+  }
+
+  .login-acceso form:has(#email) {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .login-acceso form:has(#email) .login-campo:first-child,
+  .login-acceso form:has(#email) .login-opciones {
+    margin-top: auto;
+  }
+
+  .login-pie {
+    margin-bottom: 0;
+  }
+
+  .login-pestanas {
+    height: 0;
+    margin: 0;
+  }
+
+  .login-opciones {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 }

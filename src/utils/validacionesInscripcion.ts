@@ -6,9 +6,7 @@ function idValido(valor: string): boolean {
   return /^\d+$/.test(valor) && Number(valor) >= 1 && Number(valor) <= 2147483647;
 }
 
-export function validarInscripcion(datos: InscripcionFormState, edicion = false): ErroresInscripcion {
-  if (edicion) return {};
-
+export function validarInscripcion(datos: InscripcionFormState): ErroresInscripcion {
   const errores: ErroresInscripcion = {};
 
   if (!idValido(datos.id_usuario)) {

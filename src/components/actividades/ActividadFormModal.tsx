@@ -31,14 +31,6 @@ export default function ActividadFormModal({ actividad, onClose, onSaved }: Prop
   const guardando = useRef(false);
   const soloLectura = Boolean(actividad) && !editando;
 
-  function cancelarEdicion() {
-    if (guardando.current) return;
-    setValores(obtenerValoresIniciales(actividad));
-    setErrores({});
-    setError("");
-    setEditando(false);
-  }
-
   function cerrar() {
     if (!guardando.current) onClose();
   }
@@ -88,7 +80,7 @@ export default function ActividadFormModal({ actividad, onClose, onSaved }: Prop
     ) : null}
     {actividad ? (
       <div className="actividad-paneles">
-        <form className={`usuario-form actividad-panel${soloLectura ? " actividad-solo-lectura" : ""}`} id="actividad-panel-datos" role="tabpanel"
+        <form className={`usuario-form actividad-form-nueva actividad-panel${soloLectura ? " actividad-solo-lectura" : ""}`} id="actividad-panel-datos" role="tabpanel"
           aria-labelledby="actividad-tab-datos" aria-hidden={pestana !== "datos"} inert={pestana !== "datos"}
           noValidate onSubmit={guardar} aria-busy={submitting}>
           <ActividadCampos valores={valores} errores={errores} soloLectura={soloLectura} disabled={submitting || !puedeGestionar}
@@ -98,13 +90,12 @@ export default function ActividadFormModal({ actividad, onClose, onSaved }: Prop
             }} />
           {error && <div className="usuario-form-error" role="alert">{error}</div>}
           <div className="usuario-form-actions">
-            <button type="button" className="usuario-form-cancel" onClick={editando ? cancelarEdicion : cerrar} disabled={submitting}>Cancelar</button>
             {editando ? (
-              <button key="guardar" type="submit" className="usuario-form-submit" disabled={submitting || !puedeGestionar}>
+              <button key="guardar" type="submit" className="usuario-form-submit form-accion-principal" disabled={submitting || !puedeGestionar}>
                 {submitting ? "Guardando..." : "Guardar cambios"}
               </button>
             ) : (
-              <button key="editar" type="button" className="usuario-form-submit" disabled={!puedeGestionar}
+              <button key="editar" type="button" className="usuario-form-submit form-accion-principal" disabled={!puedeGestionar}
                 onClick={(event) => { event.preventDefault(); setEditando(true); }}>
                 Editar
               </button>
@@ -122,7 +113,7 @@ export default function ActividadFormModal({ actividad, onClose, onSaved }: Prop
         </div>
       </div>
     ) : (
-      <form className="usuario-form" noValidate onSubmit={guardar} aria-busy={submitting}>
+      <form className="usuario-form actividad-form-nueva" noValidate onSubmit={guardar} aria-busy={submitting}>
         <ActividadCampos valores={valores} errores={errores} disabled={submitting || !puedeGestionar}
           onChange={(campo, valor) => {
             setValores(actual => ({ ...actual, [campo]: valor }));
@@ -130,7 +121,6 @@ export default function ActividadFormModal({ actividad, onClose, onSaved }: Prop
           }} />
         {error && <div className="usuario-form-error" role="alert">{error}</div>}
         <div className="usuario-form-actions">
-          <button type="button" className="usuario-form-cancel" onClick={cerrar} disabled={submitting}>Cancelar</button>
           <button type="submit" className="usuario-form-submit" disabled={submitting || !puedeGestionar}>
             {submitting ? "Guardando..." : "Guardar actividad"}
           </button>

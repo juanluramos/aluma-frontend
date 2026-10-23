@@ -33,7 +33,7 @@ import ayudaRojoIcon from '../../assets/icons/navigation/ayuda-rojo.webp';
 import logoAluma from '../../assets/icons/logo/aluma.webp';
 
 
-function Sidebar() {
+function Sidebar({ oculto = false, onCerrar }: { oculto?: boolean; onCerrar?: () => void }) {
   const role = useRole();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState<'day' | 'night'>(() => {
@@ -76,7 +76,10 @@ function Sidebar() {
   }
   return (
 
-    <aside className="sidebar">
+    <aside className="sidebar" id="menu-lateral" inert={oculto || undefined}
+      onClick={event => {
+        if (event.target instanceof Element && event.target.closest("a")) onCerrar?.();
+      }}>
         <img src={logoAluma} alt='' className='header-logo' />
       <nav>
         <ul className="sidebar-menu">

@@ -19,44 +19,49 @@ export default function CuotaCampos({ valores, errores, usuarios, cargandoUsuari
     codigo: usuario.codUsuario?.trim() ?? "",
   })).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   return (
-    <div className="usuario-form-grid">
+    <div className="usuario-form-grid cuotas-campos">
       <SelectorUsuario id="cuota-id_usuario" valor={valores.id_usuario} usuarios={opciones}
         disabled={disabled || cargandoUsuarios} error={errores.id_usuario}
         etiqueta="Socio" placeholder="Buscar socio..."
-        onChange={id => onChange("id_usuario", id)} />
+        onChange={id => onChange("id_usuario", id)}
+        juntoAlNombre={(
+          <div className="usuario-form-field cuotas-campo-anio">
+            <label htmlFor="cuota-pagoAnio">Año</label>
+            <input
+              id="cuota-pagoAnio"
+              name="pagoAnio"
+              type="number"
+              inputMode="numeric"
+              min={PAGO_ANIO_MINIMO}
+              max={PAGO_ANIO_MAXIMO}
+              step={1}
+              value={valores.pagoAnio}
+              disabled={disabled}
+              aria-invalid={Boolean(errores.pagoAnio)}
+              aria-describedby={errores.pagoAnio ? "cuota-pagoAnio-error" : undefined}
+              onChange={(evento) => onChange("pagoAnio", evento.target.value)}
+            />
+            {errores.pagoAnio && <p id="cuota-pagoAnio-error" className="usuario-form-field-error" role="alert">{errores.pagoAnio}</p>}
+          </div>
+        )}
+        juntoAlCodigo={(
+          <div className="usuario-form-field cuotas-campo-fecha">
+            <label htmlFor="cuota-fechaPago">Fecha de pago</label>
+            <input
+              id="cuota-fechaPago"
+              name="fechaPago"
+              type="date"
+              value={valores.fechaPago}
+              disabled={disabled}
+              aria-invalid={Boolean(errores.fechaPago)}
+              aria-describedby={errores.fechaPago ? "cuota-fechaPago-error" : undefined}
+              onChange={(evento) => onChange("fechaPago", evento.target.value)}
+            />
+            {errores.fechaPago && <p id="cuota-fechaPago-error" className="usuario-form-field-error" role="alert">{errores.fechaPago}</p>}
+          </div>
+        )}
+      />
       {cargandoUsuarios ? <p role="status">Cargando usuarios...</p> : null}
-      <div className="usuario-form-field">
-        <label htmlFor="cuota-pagoAnio">Año</label>
-        <input
-          id="cuota-pagoAnio"
-          name="pagoAnio"
-          type="number"
-          inputMode="numeric"
-          min={PAGO_ANIO_MINIMO}
-          max={PAGO_ANIO_MAXIMO}
-          step={1}
-          value={valores.pagoAnio}
-          disabled={disabled}
-          aria-invalid={Boolean(errores.pagoAnio)}
-          aria-describedby={errores.pagoAnio ? "cuota-pagoAnio-error" : undefined}
-          onChange={(evento) => onChange("pagoAnio", evento.target.value)}
-        />
-        {errores.pagoAnio && <p id="cuota-pagoAnio-error" className="usuario-form-field-error" role="alert">{errores.pagoAnio}</p>}
-      </div>
-      <div className="usuario-form-field">
-        <label htmlFor="cuota-fechaPago">Fecha de pago</label>
-        <input
-          id="cuota-fechaPago"
-          name="fechaPago"
-          type="date"
-          value={valores.fechaPago}
-          disabled={disabled}
-          aria-invalid={Boolean(errores.fechaPago)}
-          aria-describedby={errores.fechaPago ? "cuota-fechaPago-error" : undefined}
-          onChange={(evento) => onChange("fechaPago", evento.target.value)}
-        />
-        {errores.fechaPago && <p id="cuota-fechaPago-error" className="usuario-form-field-error" role="alert">{errores.fechaPago}</p>}
-      </div>
       <div className="usuario-form-field usuario-form-field-full">
         <label htmlFor="cuota-comentario">Comentario</label>
         <textarea

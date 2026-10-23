@@ -36,6 +36,13 @@ function cambiar(id: string, value: string): void {
 }
 function montar(mode: 'create' | 'edit', key: string): void {
   flushSync(() => root.render(<UsuarioFormModal key={key} isOpen mode={mode} usuario={mode === 'edit' ? usuario : undefined} onClose={() => undefined} />));
+  if (mode === 'edit') {
+    const boton = [...document.querySelectorAll('.usuario-form-actions button')].find(
+      (elemento) => elemento.textContent?.trim() === 'Editar',
+    ) as HTMLButtonElement | undefined;
+    comprobar(boton, 'Falta el botón Editar');
+    flushSync(() => boton.click());
+  }
 }
 async function guardar(): Promise<void> {
   flushSync(() => document.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { hasPermission } from "../auth/permissions";
 import InscripcionFormModal from "../components/inscripciones/InscripcionFormModal";
 import InscripcionesTable from "../components/inscripciones/InscripcionesTable";
-import Paginacion, { REGISTROS_POR_PAGINA } from "../components/Paginacion";
+import Paginacion, { useRegistrosPorPagina } from "../components/Paginacion";
 import { useSesionInscripcion } from "../components/inscripciones/useSesionInscripcion";
 import { getEstadosInscripcion, getEstadosPago, getMetodosPago } from "../services/catalogoPagoService";
 import { getInscripciones, type InscripcionCreada } from "../services/inscripcionService";
@@ -52,6 +52,7 @@ export default function InscripcionesPage() {
   const [metodoFiltro, setMetodoFiltro] = usePreferenciaSesion<string[]>("pagos.metodoFiltro", []);
   const [busqueda, setBusqueda] = usePreferenciaSesion<string>("inscripciones.busqueda", "");
   const [pagina, setPagina] = usePreferenciaSesion<number>("inscripciones.pagina", 1);
+  const registrosPorPagina = useRegistrosPorPagina();
   const [campoOrden, setCampoOrden] = usePreferenciaSesion<CampoOrdenInscripcion | null>("inscripciones.campoOrden", "fecha", [null, "codigo", "usuario", "actividad", "fecha", "fechaPago"]);
   const [direccionOrden, setDireccionOrden] = usePreferenciaSesion<'asc' | 'desc'>("inscripciones.direccionOrden", 'desc', ["asc", "desc"]);
   const inscripcionesOrdenadas = useMemo(
@@ -192,10 +193,10 @@ export default function InscripcionesPage() {
     const estado = estadosInscripcion.find(item => item.id_estado_inscripcion === id_estado_inscripcion);
     return estado !== undefined && estadoFiltro.includes(estado.nombre);
   });
-  const totalPaginas = Math.max(1, Math.ceil(inscripcionesFiltradas.length / REGISTROS_POR_PAGINA));
+  const totalPaginas = Math.max(1, Math.ceil(inscripcionesFiltradas.length / registrosPorPagina));
   const paginaActual = Math.min(pagina, totalPaginas);
-  const inicioPagina = (paginaActual - 1) * REGISTROS_POR_PAGINA;
-  const inscripcionesPagina = inscripcionesFiltradas.slice(inicioPagina, inicioPagina + REGISTROS_POR_PAGINA);
+  const inicioPagina = (paginaActual - 1) * registrosPorPagina;
+  const inscripcionesPagina = inscripcionesFiltradas.slice(inicioPagina, inicioPagina + registrosPorPagina);
 
   return (
     <div className="inscripciones-page">
@@ -213,7 +214,7 @@ export default function InscripcionesPage() {
         ))}
       </div>
 
-      <div className="inscripciones-list-toolbar list-toolbar list-toolbar-compact">
+      <div className="inscripciones-list-toolbar caja-toolbar list-toolbar list-toolbar-compact">
         <div className="inscripciones-list-title">
           <strong>Caja</strong>
           <span>Mostrando {inscripcionesFiltradas.length} resultados</span>

@@ -5,7 +5,7 @@ import Modal from "../modal/Modal";
 import { cancelarInscripcion, activarInscripcion, createInscripcion, InscripcionApiError, registrarDevolucionInscripcion, registrarPagoInscripcion, updateInscripcion, type InscripcionCreada } from "../../services/inscripcionService";
 import type { EstadoInscripcionCatalogo, EstadoPagoCatalogo, MetodoPagoCatalogo } from "../../types/catalogoPago";
 import type { Inscripcion } from "../../types/inscripcion";
-import { construirComentarioInscripcion, construirDatosInscripcion } from "../../utils/inscripcionFormPayload";
+import { construirDatosInscripcion, construirEdicionInscripcion } from "../../utils/inscripcionFormPayload";
 import { valoresDesdeInscripcion, valoresIniciales } from "../../utils/inscripcionFormState";
 import { construirDevolucionInscripcion, construirPagoInscripcion } from "../../utils/pagoInscripcionPayload";
 import {
@@ -83,7 +83,6 @@ export default function InscripcionFormModal({
   const puedeCrear = hasPermission(rol, "verInscripciones");
   const puedeEditar = hasPermission(rol, "gestionarInscripciones");
   const puedeGuardar = edicion ? puedeEditar : puedeCrear;
-  const elegirUsuario = !edicion && puedeEditar;
   const [valores, setValores] = useState(() => (
     inscripcion ? valoresDesdeInscripcion(inscripcion) : valoresIniciales(idUsuario, !puedeEditar)
   ));
@@ -93,7 +92,13 @@ export default function InscripcionFormModal({
   const [actividades, setActividades] = useState<OpcionActividad[]>(() => (
     inscripcion ? [{ id_actividad: inscripcion.id_actividad, titulo: tituloInscripcion(inscripcion) }] : []
   ));
-  const [usuarios, setUsuarios] = useState<OpcionUsuario[]>([]);
+  const [usuarios, setUsuarios] = useState<OpcionUsuario[]>(() => (
+    inscripcion ? [{
+      id_usuario: inscripcion.id_usuario,
+      nombre: nombreInscripcion(inscripcion),
+      codigo: "",
+    }] : []
+  ));
   const [nombrePropio, setNombrePropio] = useState(() => (
     inscripcion ? nombreInscripcion(inscripcion) : "Tu usuario"
   ));
@@ -107,7 +112,10 @@ export default function InscripcionFormModal({
   const [erroresPago, setErroresPago] = useState<{ metodo?: string; fecha?: string }>({});
   const [conflicto, setConflicto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editando, setEditando] = useState(false);
   const guardando = useRef(false);
+  const elegirUsuario = puedeEditar && (!edicion || editando);
+  const camposBloqueados = edicion && !editando;
   const puedeCancelar = edicion && puedeCancelarInscripcion(inscripcion, estados, estadosInscripcion, puedeEditar);
   const enCancelacion = cancelacion && puedeCancelar;
   const idEstadoInscripcion = inscripcion?.id_estado_inscripcion;
@@ -120,7 +128,7 @@ export default function InscripcionFormModal({
   const muestraEspera = edicion && estaEnEspera(inscripcion, estadosInscripcion);
 
   useEffect(() => {
-    if (edicion) return undefined;
+    if (edicion && !puedeEditar) return undefined;
 
     let activo = true;
     const tareas: Promise<unknown>[] = [
@@ -129,7 +137,7 @@ export default function InscripcionFormModal({
       }),
     ];
 
-    if (elegirUsuario) {
+    if (puedeEditar) {
       tareas.push(cargarUsuariosInscripcion().then((datos) => {
         if (activo) setUsuarios(datos);
       }));
@@ -151,7 +159,7 @@ export default function InscripcionFormModal({
     return () => {
       activo = false;
     };
-  }, [edicion, elegirUsuario, idUsuario]);
+  }, [edicion, puedeEditar, idUsuario]);
 
   const enCobro = cobro && puedeCobrar;
   const enDevolucion = devolucion && puedeDevolver;
@@ -163,7 +171,7 @@ export default function InscripcionFormModal({
 
   async function guardar(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (guardando.current) return;
+    if (guardando.current || (edicion && !editando)) return;
 
     if (!puedeGuardar) {
       setError(edicion
@@ -178,7 +186,7 @@ export default function InscripcionFormModal({
       return;
     }
 
-    const validacion = validarInscripcion({ ...valores, id_usuario: idEnvio }, edicion);
+    const validacion = validarInscripcion({ ...valores, id_usuario: idEnvio });
     setErrores(validacion);
     setError("");
     if (Object.keys(validacion).length > 0) return;
@@ -187,7 +195,7 @@ export default function InscripcionFormModal({
     setSubmitting(true);
     try {
       if (edicion) {
-        await updateInscripcion(inscripcion.id_inscripcion, construirComentarioInscripcion(valores));
+        await updateInscripcion(inscripcion.id_inscripcion, construirEdicionInscripcion(valores));
         onEditada?.();
       } else {
         const creada = await createInscripcion(construirDatosInscripcion(
@@ -399,7 +407,7 @@ export default function InscripcionFormModal({
         : variante === "pago" && edicion
           ? "Pago"
           : edicion
-            ? "Editar inscripción"
+            ? "Inscripción"
             : "Nueva inscripción";
 
   return (
@@ -506,9 +514,10 @@ export default function InscripcionFormModal({
         <InscripcionCampos
           valores={valores}
           errores={errores}
-          disabled={submitting || !puedeGuardar}
+          disabled={submitting || !puedeGuardar || camposBloqueados}
           elegirUsuario={elegirUsuario}
-          referenciasBloqueadas={edicion}
+          referenciasBloqueadas={edicion && !editando}
+          precio={edicion ? textoImporte(inscripcion.precioAplicado) : undefined}
           usuarios={usuarios}
           nombrePropio={nombrePropio}
           actividades={actividades}
@@ -536,12 +545,32 @@ export default function InscripcionFormModal({
               Registrar devolución
             </button>
           ) : null}
-          <button type="button" className="usuario-form-cancel" onClick={puedeCancelar ? abrirCancelacion : cerrar} disabled={submitting}>
-            {puedeCancelar ? "Cancelar inscripción" : edicion ? "Cerrar" : "Cancelar"}
-          </button>
-          <button type="submit" className="usuario-form-submit" disabled={submitting || !listo || !puedeGuardar}>
-            {submitting ? "Guardando..." : edicion ? "Guardar cambios" : "Crear inscripción"}
-          </button>
+          {puedeCancelar ? (
+            <button type="button" className="usuario-form-cancel" onClick={abrirCancelacion} disabled={submitting}>
+              Cancelar inscripción
+            </button>
+          ) : null}
+          {!edicion ? (
+            <button type="submit" className="usuario-form-submit" disabled={submitting || !listo || !puedeGuardar}>
+              {submitting ? "Guardando..." : "Crear inscripción"}
+            </button>
+          ) : puedeEditar && camposBloqueados ? (
+            <button
+              key="editar"
+              type="button"
+              className="usuario-form-submit form-accion-principal"
+              onClick={(event) => {
+                event.preventDefault();
+                setEditando(true);
+              }}
+            >
+              Editar
+            </button>
+          ) : puedeEditar ? (
+            <button key="guardar" type="submit" className="usuario-form-submit form-accion-principal" disabled={submitting || !listo}>
+              {submitting ? "Guardando..." : "Guardar cambios"}
+            </button>
+          ) : null}
         </div>
       </form>
       )}

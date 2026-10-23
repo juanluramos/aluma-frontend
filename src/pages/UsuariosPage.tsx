@@ -6,7 +6,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { hasPermission } from "../auth/permissions";
 import { useRole } from "../auth/useRole";
 
-import Paginacion, { REGISTROS_POR_PAGINA } from "../components/Paginacion";
+import Paginacion, { useRegistrosPorPagina } from "../components/Paginacion";
 import ConfirmarEliminarUsuario from "../components/usuarios/ConfirmarEliminarUsuario";
 import UsuarioFormModal from "../components/usuarios/UsuarioFormModal";
 import UsuariosFiltros from "../components/usuarios/UsuariosFiltros";
@@ -144,6 +144,7 @@ function UsuariosPage() {
     usePreferenciaSesion<DireccionOrden>("usuarios.ordenDireccion", "desc", ["asc", "desc"]);
 
   const [pagina, setPagina] = usePreferenciaSesion<number>("usuarios.pagina", 1);
+  const registrosPorPagina = useRegistrosPorPagina();
 
 
   /*
@@ -429,13 +430,13 @@ function UsuariosPage() {
 
   const totalPaginas = Math.max(
     1,
-    Math.ceil(usuariosOrdenados.length / REGISTROS_POR_PAGINA),
+    Math.ceil(usuariosOrdenados.length / registrosPorPagina),
   );
   const paginaActual = Math.min(pagina, totalPaginas);
-  const inicioPagina = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+  const inicioPagina = (paginaActual - 1) * registrosPorPagina;
   const usuariosPagina = usuariosOrdenados.slice(
     inicioPagina,
-    inicioPagina + REGISTROS_POR_PAGINA,
+    inicioPagina + registrosPorPagina,
   );
 
   return (

@@ -6,6 +6,7 @@ type ModalProps = {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  className?: string;
 };
 
 function Modal({
@@ -13,6 +14,7 @@ function Modal({
   title,
   children,
   onClose,
+  className,
 }: ModalProps) {
   useEffect(() => {
     if (!isOpen) {
@@ -41,7 +43,7 @@ function Modal({
 
   return (
     <div
-      className="modal-overlay"
+      className={className ? `modal-overlay ${className}` : "modal-overlay"}
       onMouseDown={onClose}
     >
       <div

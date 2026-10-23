@@ -29,6 +29,19 @@ function claseRol(idRol: number): string {
   return "rol-usuario";
 }
 
+function FechaListado({ valor }: { valor: string }) {
+  const texto = textoFechaInscripcion(valor);
+  const partes = /^(\d{2}\/\d{2}\/)(\d{2})(\d{2})$/.exec(texto);
+  if (!partes) return texto;
+  return (
+    <>
+      {partes[1]}
+      <span className="usuarios-fecha-siglo">{partes[2]}</span>
+      {partes[3]}
+    </>
+  );
+}
+
 function textoEstadoUsuario(idEstado: number): string {
   if (idEstado === 1) return "Usuario activo";
   if (idEstado === 3) return "Usuario pendiente";
@@ -219,7 +232,7 @@ function UsuariosTable({
                   }
                 >
                   <td>
-                    {textoFechaInscripcion(usuario.fechaInscripcion)}
+                    <FechaListado valor={usuario.fechaInscripcion} />
                   </td>
 
                   <td>

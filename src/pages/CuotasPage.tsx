@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { hasPermission } from "../auth/permissions";
 import { useRole } from "../auth/useRole";
 import buscarIcono from "../assets/icons/navigation/buscar.webp";
 import pagosAzul from "../assets/icons/navigation/pagos-euro-azul.webp";
 import pagosVerde from "../assets/icons/navigation/pagos-euro-verde.webp";
-import Paginacion, { REGISTROS_POR_PAGINA } from "../components/Paginacion";
+import Paginacion, { useRegistrosPorPagina } from "../components/Paginacion";
 import CuotaFormModal from "../components/cuotas/CuotaFormModal";
 import { getCuotas, type Cuota } from "../services/cuotaService";
 import { textoFechaInscripcion } from "../utils/fechaCalendario";
@@ -29,6 +29,84 @@ import "./CuotasPage.css";
 
 type FormularioCuota = { mode: "create" } | { mode: "edit"; cuota: Cuota };
 
+function AnioCuotasDesplegable({
+  anio,
+  anios,
+  onCambiar,
+}: {
+  anio: number | null;
+  anios: number[];
+  onCambiar: (anio: number | null) => void;
+}) {
+  const [abierto, setAbierto] = useState(false);
+  const contenedor = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!abierto) return undefined;
+    const cerrarFuera = (evento: PointerEvent) => {
+      if (evento.target instanceof Node && !contenedor.current?.contains(evento.target)) setAbierto(false);
+    };
+    const cerrarEscape = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape") setAbierto(false);
+    };
+    document.addEventListener("pointerdown", cerrarFuera);
+    document.addEventListener("keydown", cerrarEscape);
+    return () => {
+      document.removeEventListener("pointerdown", cerrarFuera);
+      document.removeEventListener("keydown", cerrarEscape);
+    };
+  }, [abierto]);
+
+  function elegir(valor: number | null) {
+    onCambiar(valor);
+    setAbierto(false);
+  }
+
+  return (
+    <div className="cuotas-anio" ref={contenedor}>
+      <button
+        type="button"
+        className="list-filter cuotas-anio-trigger"
+        aria-expanded={abierto}
+        aria-haspopup="listbox"
+        onClick={() => setAbierto((actual) => !actual)}
+      >
+        {anio == null ? "Todos los años" : anio}
+        <span className="cuotas-anio-flecha" aria-hidden="true" />
+      </button>
+      {abierto ? (
+        <ul className="cuotas-anio-panel" role="listbox" aria-label="Año">
+          <li role="presentation">
+            <button type="button" role="option" aria-selected={anio == null} onClick={() => elegir(null)}>
+              Todos los años
+            </button>
+          </li>
+          {anios.map((valor) => (
+            <li key={valor} role="presentation">
+              <button type="button" role="option" aria-selected={anio === valor} onClick={() => elegir(valor)}>
+                {valor}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function FechaPagoListado({ valor }: { valor: string }) {
+  const texto = textoFechaInscripcion(valor);
+  const partes = /^(\d{2}\/\d{2}\/)(\d{2})(\d{2})$/.exec(texto);
+  if (!partes) return texto;
+  return (
+    <>
+      {partes[1]}
+      <span className="cuotas-fecha-siglo">{partes[2]}</span>
+      {partes[3]}
+    </>
+  );
+}
+
 export default function CuotasPage() {
   const puedeRegistrar = hasPermission(useRole(), "verCuotas");
   const [cuotas, setCuotas] = useState<Cuota[]>([]);
@@ -38,14 +116,15 @@ export default function CuotasPage() {
   const [busqueda, setBusqueda] = useState("");
   const [anio, setAnio] = useState<number | null>(null);
   const [pagina, setPagina] = useState(1);
+  const registrosPorPagina = useRegistrosPorPagina();
   const filtro: FiltroCuotas = { busqueda, anio };
   const [campoOrden, setCampoOrden] = useState<CampoOrdenCuota>("fechaPago");
   const [direccionOrden, setDireccionOrden] = useState<"asc" | "desc">("desc");
   const cuotasVisibles = ordenarCuotas(filtrarCuotas(cuotas, filtro), campoOrden, direccionOrden);
-  const totalPaginas = Math.max(1, Math.ceil(cuotasVisibles.length / REGISTROS_POR_PAGINA));
+  const totalPaginas = Math.max(1, Math.ceil(cuotasVisibles.length / registrosPorPagina));
   const paginaActual = Math.min(pagina, totalPaginas);
-  const inicioPagina = (paginaActual - 1) * REGISTROS_POR_PAGINA;
-  const cuotasPagina = cuotasVisibles.slice(inicioPagina, inicioPagina + REGISTROS_POR_PAGINA);
+  const inicioPagina = (paginaActual - 1) * registrosPorPagina;
+  const cuotasPagina = cuotasVisibles.slice(inicioPagina, inicioPagina + registrosPorPagina);
   const resumenAnio = resumenCuotasAnio(cuotas, new Date().getFullYear());
   const anios = aniosDisponiblesCuotas(cuotas, anio);
   const filtrosActivos = filtrosCuotasActivos(filtro);
@@ -127,15 +206,11 @@ export default function CuotasPage() {
               onChange={(evento) => { setBusqueda(evento.target.value); setPagina(1); }}
             />
           </div>
-          <select
-            aria-label="Año"
-            className="list-filter"
-            value={anio ?? ""}
-            onChange={(evento) => { setAnio(evento.target.value === "" ? null : Number(evento.target.value)); setPagina(1); }}
-          >
-            <option value="">Todos los años</option>
-            {anios.map((valor) => <option key={valor} value={valor}>{valor}</option>)}
-          </select>
+          <AnioCuotasDesplegable
+            anio={anio}
+            anios={anios}
+            onCambiar={(valor) => { setAnio(valor); setPagina(1); }}
+          />
           {filtrosActivos ? (
             <button type="button" className="cuotas-limpiar" onClick={() => { setBusqueda(""); setAnio(null); setPagina(1); }}>
               Limpiar filtros
@@ -153,10 +228,9 @@ export default function CuotasPage() {
         <table className="cuotas-tabla">
           <thead>
             <tr>
-              {cabeceraOrden("anio", "Año")}
+              {cabeceraOrden("fechaPago", "Fecha de pago")}
               <th>Código</th>
               {cabeceraOrden("socio", "Socio")}
-              {cabeceraOrden("fechaPago", "Fecha de pago")}
               <th>Importe</th>
               <th>Comentario</th>
             </tr>
@@ -164,15 +238,15 @@ export default function CuotasPage() {
           <tbody>
             {cargando ? (
               <tr>
-                <td colSpan={6}>Cargando cuotas...</td>
+                <td colSpan={5}>Cargando cuotas...</td>
               </tr>
             ) : cuotas.length === 0 && !error ? (
               <tr>
-                <td colSpan={6}>No hay cuotas registradas.</td>
+                <td colSpan={5}>No hay cuotas registradas.</td>
               </tr>
             ) : cuotasVisibles.length === 0 ? (
               <tr>
-                <td colSpan={6}>No hay cuotas que coincidan con los filtros.</td>
+                <td colSpan={5}>No hay cuotas que coincidan con los filtros.</td>
               </tr>
             ) : cuotasPagina.map((cuota) => (
               <tr
@@ -186,10 +260,9 @@ export default function CuotasPage() {
                   setFormulario({ mode: "edit", cuota });
                 } : undefined}
               >
-                <td>{cuota.pagoAnio}</td>
+                <td><FechaPagoListado valor={cuota.fechaPago} /></td>
                 <td>{textoCodigoCuota(cuota.Usuario)}</td>
                 <td>{nombreVisibleCuota(cuota.Usuario)}</td>
-                <td>{textoFechaInscripcion(cuota.fechaPago)}</td>
                 <td>{importeVisibleCuota(cuota.importePagado)}</td>
                 <td>{textoComentarioCuota(cuota.comentario)}</td>
               </tr>
@@ -198,7 +271,6 @@ export default function CuotasPage() {
           {cuotasVisibles.length > 0 ? (
             <tfoot>
               <tr>
-                <td />
                 <td />
                 <td />
                 <td className="cuotas-total-etiqueta">Total</td>

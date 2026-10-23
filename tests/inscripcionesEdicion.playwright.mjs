@@ -96,20 +96,22 @@ try {
     assert.equal(await page.getByLabel("Precio aplicado").count(), 0);
     assert.equal(await page.getByLabel("Estado de pago").count(), 0);
     assert.equal(await page.getByLabel("Método de pago").count(), 0);
+    await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByLabel("Comentarios", { exact: true }).fill("Descartar");
-    await page.getByRole("button", { name: "Cancelar", exact: true }).click();
+    await page.getByRole("button", { name: "Cerrar modal", exact: true }).click();
     await dialogo.waitFor({ state: "detached" });
     assert.equal(writes, 0);
 
     await page.getByText("Taller de cerámica", { exact: true }).click();
     assert.equal(await page.getByLabel("Comentarios", { exact: true }).inputValue(), "Nota inicial");
     fallo = 409;
+    await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByLabel("Comentarios", { exact: true }).fill("Intento rechazado");
     await page.getByRole("button", { name: "Guardar cambios" }).click();
     await page.getByText("El historial contable requiere revisión").waitFor();
     assert.equal(await dialogo.count(), 1);
     assert.equal(await page.getByLabel("Comentarios", { exact: true }).inputValue(), "Intento rechazado");
-    assert.deepEqual(latest, { comentario: "Intento rechazado" });
+    assert.deepEqual(latest, { id_usuario: 9, id_actividad: 12, comentario: "Intento rechazado" });
     assert.equal(writes, 1);
     const lecturasTrasError = lecturas;
 
@@ -120,12 +122,12 @@ try {
     });
     await dialogo.waitFor({ state: "detached" });
     assert.equal(writes, 2);
-    assert.deepEqual(latest, { comentario: "Intento rechazado" });
-    assert.deepEqual(Object.keys(latest), ["comentario"]);
+    assert.deepEqual(latest, { id_usuario: 9, id_actividad: 12, comentario: "Intento rechazado" });
+    assert.deepEqual(Object.keys(latest).sort(), ["comentario", "id_actividad", "id_usuario"]);
     assert.ok(lecturas > lecturasTrasError);
     await page.getByText("Taller de cerámica", { exact: true }).click();
     assert.equal(await page.getByLabel("Comentarios", { exact: true }).inputValue(), "Intento rechazado");
-    await page.getByRole("button", { name: "Cancelar", exact: true }).click();
+    await page.getByRole("button", { name: "Cerrar modal", exact: true }).click();
     console.log(`PASS ${rol}: edición de comentario sin campos económicos`);
   }
 } finally {

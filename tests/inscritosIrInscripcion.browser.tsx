@@ -83,7 +83,7 @@ try {
   const boton = document.querySelector('[aria-label="Ver inscripción de Ana García López"]') as HTMLButtonElement | null;
   comprobar(boton, "El usuario no es pulsable");
   flushSync(() => boton.click());
-  await esperarTexto("Editar inscripción");
+  await esperarTexto("Inscripción");
   const usuario = document.querySelector('[role="dialog"] input[name="id_usuario"]') as HTMLInputElement | null;
   comprobar(usuario?.value === "Ana García López", "La inscripción abierta es la de Ana");
   comprobar(!document.querySelector(".actividad-inscritos"), "Se sale del listado de inscritos");

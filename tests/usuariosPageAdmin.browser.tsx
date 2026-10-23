@@ -231,9 +231,33 @@ function deletesUsuarios(): Peticion[] {
   return peticiones.filter(p => p.method === 'DELETE' && /\/usuarios\/\d+/.test(p.url));
 }
 
+async function esperarEdicionCerrada(): Promise<void> {
+  for (let i = 0; i < 40; i++) {
+    if (document.getElementById('modal-title')?.textContent?.trim() !== 'Usuario') return;
+    await esperar(25);
+  }
+  throw new Error('El modal de usuario sigue abierto');
+}
+
+function cerrarModalUsuario(): void {
+  flushSync(() => (document.querySelector('.modal-close') as HTMLButtonElement).click());
+}
+
+function pulsarEditar(): void {
+  const boton = [...document.querySelectorAll('.usuario-form-actions button')].find(
+    (elemento) => elemento.textContent?.trim() === 'Editar',
+  ) as HTMLButtonElement | undefined;
+  comprobar(boton, 'Falta el botón Editar');
+  flushSync(() => boton.click());
+}
+
 async function abrirEdicion(codigo: string): Promise<void> {
   flushSync(() => filaPorCodigo(codigo).cells[1]!.click());
-  await esperarTexto('Editar usuario');
+  for (let i = 0; i < 40; i++) {
+    if (document.getElementById('modal-title')?.textContent?.trim() === 'Usuario') return;
+    await esperar(25);
+  }
+  throw new Error('No apareció el modal Usuario');
 }
 
 function botonEliminarEnModal(): HTMLButtonElement | null {
@@ -246,7 +270,7 @@ async function solicitarEliminarDesdeModal(codigo: string): Promise<void> {
   comprobar(boton, `Debe existir Eliminar en el modal de ${codigo}`);
   flushSync(() => boton.click());
   await esperarTexto('Eliminar usuario definitivamente');
-  await esperarSinTexto('Editar usuario');
+  await esperarEdicionCerrada();
 }
 
 async function montarConCarga(): Promise<void> {
@@ -298,7 +322,10 @@ async function ejecutar(): Promise<void> {
   await abrirEdicion('ALU-A');
   comprobar(!document.querySelector('#estado'), 'Operador no puede cambiar el selector de estado');
   const cajas = [...document.querySelectorAll('.usuario-form-options input[type="checkbox"]')] as HTMLInputElement[];
-  comprobar(cajas.length === 3 && cajas.every(caja => !caja.disabled), 'Operador puede editar los checkbox');
+  comprobar(cajas.length === 3 && cajas.every(caja => caja.matches(':disabled')), 'Al abrir, los campos no se pueden modificar');
+  comprobar(!document.querySelector('.usuario-form-cancel'), 'La vista de usuario no muestra Cancelar');
+  pulsarEditar();
+  comprobar(cajas.every(caja => !caja.matches(':disabled')), 'Operador puede editar los checkbox');
   flushSync(() => cajas[0]!.click());
   flushSync(() => document.querySelector('form.usuario-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await esperar(80);
@@ -307,7 +334,7 @@ async function ejecutar(): Promise<void> {
   comprobar(Object.hasOwn(edicion?.body ?? {}, 'matriculaPagada'), 'Operador envía la matrícula');
   comprobar(Object.hasOwn(edicion?.body ?? {}, 'id_estado_usuario'), 'Operador envía Activo');
   comprobar(!Object.hasOwn(edicion?.body ?? {}, 'id_rol'), 'Operador no envía el rol');
-  await esperarSinTexto('Editar usuario');
+  await esperarEdicionCerrada();
 
   flushSync(() => (document.querySelector('.usuarios-new-button') as HTMLButtonElement).click());
   await esperarTexto('Nuevo socio');
@@ -335,10 +362,11 @@ async function ejecutar(): Promise<void> {
     'Ana empieza activa en la tabla',
   );
   await abrirEdicion('ALU-A');
+  pulsarEditar();
   cambiarCampo('estado', '2');
   flushSync(() => document.querySelector('form.usuario-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await esperar(80);
-  await esperarSinTexto('Editar usuario');
+  await esperarEdicionCerrada();
   comprobar(putsUsuarios().some(p => p.body.id_estado_usuario === 2), 'Debe enviarse PUT con estado 2');
   comprobar(
     filaPorCodigo('ALU-A').querySelector('.estado-indicador') &&
@@ -350,13 +378,14 @@ async function ejecutar(): Promise<void> {
   const estadoAntes = listaUsuarios.find(u => u.id_usuario === 2)!.id_estado_usuario;
   falloPut = true;
   await abrirEdicion('ALU-B');
+  pulsarEditar();
   cambiarCampo('estado', estadoAntes === 1 ? '2' : '1');
   flushSync(() => document.querySelector('form.usuario-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await esperarTexto('Error simulado al actualizar usuario');
   comprobar(listaUsuarios.find(u => u.id_usuario === 2)?.id_estado_usuario === estadoAntes, 'Mock sin cambios de estado en Bruno');
   falloPut = false;
-  flushSync(() => (document.querySelector('.usuario-form-cancel') as HTMLButtonElement).click());
-  await esperarSinTexto('Editar usuario');
+  cerrarModalUsuario();
+  await esperarEdicionCerrada();
   desmontarPagina();
   montarPagina();
   await esperarTexto('ALU-B');
@@ -396,15 +425,15 @@ async function ejecutar(): Promise<void> {
   reiniciarDatos();
   await iniciarSesion('Administrador');
   await montarConCarga();
-  flushSync(() => filaPorCodigo('ALU-A').cells[1]!.click());
-  await esperarTexto('Editar usuario');
+  await abrirEdicion('ALU-A');
+  pulsarEditar();
   cambiarCampo('nombre', 'Ana Actualizada');
   flushSync(() => document.querySelector('form.usuario-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await esperar(80);
-  await esperarSinTexto('Editar usuario');
+  await esperarEdicionCerrada();
   await esperarTexto('Ana Actualizada');
   comprobar(document.body.textContent?.includes('Ana Actualizada'), 'La tabla muestra el nombre editado');
-  comprobar(!document.body.textContent?.includes('Editar usuario'), 'El modal de edición debe cerrarse');
+  comprobar(document.getElementById('modal-title')?.textContent?.trim() !== 'Usuario', 'El modal de edición debe cerrarse');
 
   // 11) Eliminar: Operador no ve botón en el modal de edición
   reiniciarDatos();
@@ -413,8 +442,8 @@ async function ejecutar(): Promise<void> {
   comprobar(!document.querySelector('.usuarios-eliminar-button'), 'Operador no ve Eliminar en la tabla');
   await abrirEdicion('ALU-B');
   comprobar(!botonEliminarEnModal(), 'Operador no ve Eliminar en el modal');
-  flushSync(() => (document.querySelector('.usuario-form-cancel') as HTMLButtonElement).click());
-  await esperarSinTexto('Editar usuario');
+  cerrarModalUsuario();
+  await esperarEdicionCerrada();
 
   // 12) Eliminar: Admin no ve botón al editarse a sí mismo (id_usuario 1 = Ana)
   reiniciarDatos();
@@ -422,12 +451,12 @@ async function ejecutar(): Promise<void> {
   await montarConCarga();
   await abrirEdicion('ALU-A');
   comprobar(!botonEliminarEnModal(), 'Admin no puede eliminarse a sí mismo');
-  flushSync(() => (document.querySelector('.usuario-form-cancel') as HTMLButtonElement).click());
-  await esperarSinTexto('Editar usuario');
+  cerrarModalUsuario();
+  await esperarEdicionCerrada();
   await abrirEdicion('ALU-B');
   comprobar(botonEliminarEnModal(), 'Admin sí ve Eliminar al editar a Bruno');
-  flushSync(() => (document.querySelector('.usuario-form-cancel') as HTMLButtonElement).click());
-  await esperarSinTexto('Editar usuario');
+  cerrarModalUsuario();
+  await esperarEdicionCerrada();
 
   // 13) Cancelar confirmación: no hay DELETE ni cambios
   const deletesAntesCancel = deletesUsuarios().length;
@@ -501,8 +530,8 @@ async function ejecutar(): Promise<void> {
   await montarConCarga();
   await abrirEdicion('ALU-B');
   comprobar(!botonEliminarEnModal(), 'Sin id de sesión no hay Eliminar en el modal');
-  flushSync(() => (document.querySelector('.usuario-form-cancel') as HTMLButtonElement).click());
-  await esperarSinTexto('Editar usuario');
+  cerrarModalUsuario();
+  await esperarEdicionCerrada();
   idUsuarioToken = 1;
 
   // 19) Modal muestra usuario correcto; DELETE único; resto del listado intacto

@@ -32,8 +32,10 @@ function modal(mode: "create" | "edit", actual?: Cuota): string {
 
 test("el modal de edición precarga la cuota y el alta usa el mismo formulario", () => {
   const edicion = modal("edit", cuota("Nota inicial"));
-  assert.match(edicion, /Editar cuota/);
-  assert.match(edicion, /Guardar cambios/);
+  assert.match(edicion, /Cuotas/);
+  assert.match(edicion, />Editar</);
+  assert.doesNotMatch(edicion, /Guardar cambios/);
+  assert.doesNotMatch(edicion, />Cancelar</);
   assert.match(edicion, /Socio/);
   assert.match(edicion, /Buscar socio\.\.\./);
   assert.match(edicion, /value="2025"/);
@@ -48,15 +50,16 @@ test("el modal de edición precarga la cuota y el alta usa el mismo formulario",
   const alta = modal("create");
   assert.match(alta, /Nueva cuota/);
   assert.match(alta, /Guardar cuota/);
+  assert.doesNotMatch(alta, />Cancelar</);
   assert.doesNotMatch(alta, /Eliminar cuota/);
   assert.match(alta, /Socio/);
   assert.match(alta, /Buscar socio\.\.\./);
   assert.match(alta, /Selecciona un usuario|Cargando usuarios/);
-  assert.doesNotMatch(alta, /Editar cuota/);
+  assert.doesNotMatch(alta, />Cuotas</);
   assert.doesNotMatch(alta, /Guardar cambios/);
 
   const sinComentario = modal("edit", cuota(null));
-  assert.match(sinComentario, /Editar cuota/);
+  assert.match(sinComentario, /Cuotas/);
   assert.doesNotMatch(sinComentario, /Nota inicial/);
   assert.match(sinComentario, /<textarea[^>]*><\/textarea>/);
 });

@@ -34,3 +34,57 @@
   min-width: 0;
   overflow: auto;
 }
+
+.menu-overlay {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .sidebar {
+    top: 0;
+    bottom: auto;
+    height: 100svh;
+    max-height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar .header-logo {
+    display: block;
+    width: 120px;
+    margin: 12px auto 24px;
+  }
+
+  .sidebar-footer {
+    margin-bottom: 16px;
+  }
+
+  .layout.menu-abierto .sidebar {
+    transform: translateX(0);
+  }
+
+  .layout-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .layout.menu-abierto .menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 280;
+    border: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 700px) and (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}

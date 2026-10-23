@@ -19,4 +19,7 @@ test("el resumen no pagina y el listado envía página y orden", () => {
   assert.equal(parametrosContables(consulta, false), "?desde=2026-10-01&tipo=Devoluci%C3%B3n");
   assert.equal(parametrosContables(consulta, true), "?desde=2026-10-01&tipo=Devoluci%C3%B3n&pagina=2&orden=asc");
   assert.equal(parametrosContables(consultaInicial, false), "");
+  const conActividad = { ...consultaInicial, actividad: { ids: [4], sinActividad: true } };
+  assert.equal(parametrosContables(conActividad, false), "?actividad=4%2Csin");
+  assert.equal(parametrosContables({ ...consultaInicial, actividad: { ids: [], sinActividad: false } }, false), "?actividad=ninguna");
 });

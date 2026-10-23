@@ -134,17 +134,17 @@ try {
     await abrirFila("Taller segunda");
     assert.equal(await page.getByLabel("Posición en la lista").inputValue(), "2");
     assert.equal(await page.getByRole("button", { name: "Activar inscripción" }).count(), 0);
-    await page.getByRole("button", { name: "Cerrar", exact: true }).click();
+    await page.getByRole("button", { name: "Cerrar modal", exact: true }).click();
     await page.getByRole("dialog").waitFor({ state: "detached" });
 
     await abrirFila("Taller activa");
     assert.equal(await page.getByRole("button", { name: "Activar inscripción" }).count(), 0);
-    await page.getByRole("button", { name: "Cerrar", exact: true }).click();
+    await page.getByRole("button", { name: "Cerrar modal", exact: true }).click();
 
     await abrirFila("Taller sin limite");
     assert.equal(await page.getByLabel("Aforo").inputValue(), "Sin límite");
     assert.equal(await page.getByRole("button", { name: "Activar inscripción" }).count(), 1);
-    await page.getByRole("button", { name: "Cerrar", exact: true }).click();
+    await page.getByRole("button", { name: "Cerrar modal", exact: true }).click();
 
     await abrirFila("Taller en espera");
     assert.equal(await page.getByRole("dialog").count(), 1);
@@ -158,7 +158,7 @@ try {
     assert.equal(await page.getByRole("dialog").count(), 1);
     await page.getByText("Esta persona pasará de En espera a Activa y ocupará una plaza disponible. El pago continuará Pendiente.").waitFor();
     await page.getByRole("button", { name: "Cancelar", exact: true }).click();
-    await page.getByRole("heading", { name: "Editar inscripción" }).waitFor();
+    await page.getByRole("heading", { name: "Inscripción", exact: true }).waitFor();
     assert.equal(writes, 0);
 
     fallo = 409;
@@ -179,7 +179,7 @@ try {
     await page.getByText("No se pudo confirmar si la inscripción se activó.").waitFor();
     assert.equal(writes, 2);
     await page.getByRole("button", { name: "Cancelar", exact: true }).click();
-    await page.getByRole("heading", { name: "Editar inscripción" }).waitFor();
+    await page.getByRole("heading", { name: "Inscripción", exact: true }).waitFor();
 
     fallo = 0;
     writes = 0;
@@ -196,7 +196,7 @@ try {
     await page.getByText("Taller en espera", { exact: true }).click();
     await page.getByRole("dialog").waitFor();
     assert.equal(await page.getByRole("button", { name: "Activar inscripción" }).count(), 0);
-    await page.getByRole("button", { name: "Cerrar", exact: true }).click();
+    await page.getByRole("button", { name: "Cerrar modal", exact: true }).click();
     console.log(`PASS ${rol}: activa la primera persona y el pago sigue pendiente`);
   }
 } finally {

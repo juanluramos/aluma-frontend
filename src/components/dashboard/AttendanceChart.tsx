@@ -17,11 +17,14 @@ import {
 } from "../../services/dashboardService";
 import { socket } from "../../services/socketService";
 
+const CONSULTA_MOVIL = "(max-width: 700px)";
+
 function AttendanceChart() {
   const [data, setData] = useState<AnnualAttendance[]>([]);
   const [anioActual, setAnioActual] = useState<number | null>(null);
   const [anioAnterior, setAnioAnterior] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [movil, setMovil] = useState(() => window.matchMedia(CONSULTA_MOVIL).matches);
 
   useEffect(() => {
     const loadAnnualAttendance = async () => {
@@ -38,9 +41,14 @@ function AttendanceChart() {
       }
     };
 
+    const media = window.matchMedia(CONSULTA_MOVIL);
+    const actualizar = () => setMovil(media.matches);
+    media.addEventListener("change", actualizar);
+
     loadAnnualAttendance();
     socket.on("dashboard:update", loadAnnualAttendance);
     return () => {
+      media.removeEventListener("change", actualizar);
       socket.off("dashboard:update", loadAnnualAttendance);
     };
   }, []);
@@ -56,16 +64,30 @@ function AttendanceChart() {
         <p className="attendance-chart-error" role="alert">{error}</p>
       ) : (
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
+        <LineChart
+          data={data}
+          margin={movil ? { top: 4, right: 32, left: 0, bottom: 0 } : undefined}
+        >
           <CartesianGrid strokeDasharray="3 3" />
 
-          <XAxis dataKey="month" />
+          {movil ? (
+            <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+          ) : (
+            <XAxis dataKey="month" />
+          )}
 
-          <YAxis />
+          {movil ? (
+            <YAxis width={32} tick={{ fontSize: 10 }} />
+          ) : (
+            <YAxis />
+          )}
 
           <Tooltip />
 
-          <Legend />
+          <Legend
+            align="center"
+            wrapperStyle={movil ? { left: 0, width: "100%", textAlign: "center" } : undefined}
+          />
 
           <Line
             type="monotone"

@@ -6,7 +6,7 @@ type TipoContable = ConsultaContable["tipo"];
 type FiltrosMovimientoProps = {
   consulta: ConsultaContable;
   busqueda: string;
-  onAplicar: (filtros: Pick<ConsultaContable, "desde" | "hasta" | "tipo">) => void;
+  onAplicar: (filtros: Pick<ConsultaContable, "desde" | "hasta" | "tipo" | "actividad">) => void;
   onBusqueda: (valor: string) => void;
 };
 
@@ -67,9 +67,9 @@ export default function FiltrosMovimiento({
   return (
     <div className="contabilidad-filtros">
       <label className="contabilidad-filtro contabilidad-filtro-buscar">
-        Buscar
         <input
           type="search"
+          aria-label="Buscar"
           value={busqueda}
           placeholder="Busca concepto o usuario "
           onChange={(evento) => onBusqueda(evento.target.value)}
@@ -144,7 +144,7 @@ export default function FiltrosMovimiento({
               type="button"
               className="contabilidad-filtros-apply"
               onClick={() => {
-                onAplicar({ desde, hasta, tipo });
+                onAplicar({ desde, hasta, tipo, actividad: null });
                 cerrar();
               }}
             >

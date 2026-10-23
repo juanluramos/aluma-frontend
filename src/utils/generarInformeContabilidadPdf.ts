@@ -69,6 +69,7 @@ function dibujarEncabezado(documento: jsPDF, datos: DatosInformeContabilidad, an
     `Tipo: ${datos.consulta.tipo}`,
   ];
   if (datos.consulta.q) lineas.push(`Búsqueda: ${datos.consulta.q}`);
+  if (datos.consulta.actividad) lineas.push("Actividad: filtrada");
   lineas.forEach((linea, indice) => documento.text(linea, textoX, 25 + indice * 5));
   const base = Math.max(12 + altoLogo, 25 + lineas.length * 5) + 3;
   documento.setDrawColor(...ROJO);

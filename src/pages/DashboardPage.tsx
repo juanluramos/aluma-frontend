@@ -2,6 +2,7 @@ import "./DashboardPage.css";
 import "../styles/variables.css";
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { socket } from "../services/socketService";
 
@@ -28,6 +29,7 @@ function textoOcupacion(activity: UpcomingActivity): string {
 }
 
 function DashboardPage() {
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<DashboardSummary>({
     usuarios: 0,
     usuariosActivos: 0,
@@ -178,9 +180,11 @@ function DashboardPage() {
             <p>No hay próximas actividades.</p>
           ) : (
             upcomingActivities.map((activity) => (
-              <div
+              <button
+                type="button"
                 className="upcoming-activity"
                 key={activity.id}
+                onClick={() => navigate("/actividades", { state: { abrirActividad: activity.id } })}
               >
                 <div>
                   <strong>{activity.titulo}</strong>
@@ -193,7 +197,7 @@ function DashboardPage() {
                 <span>
                   {textoOcupacion(activity)}
                 </span>
-              </div>
+              </button>
             ))
           )}
         </div>

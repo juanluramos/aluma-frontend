@@ -14,6 +14,7 @@ interface Props {
   nombrePropio: string;
   actividades: OpcionActividad[];
   referenciasBloqueadas?: boolean;
+  precio?: string;
   onChange: (campo: keyof InscripcionFormState, valor: string) => void;
 }
 
@@ -40,6 +41,7 @@ export default function InscripcionCampos({
   nombrePropio,
   actividades,
   referenciasBloqueadas = false,
+  precio,
   onChange,
 }: Props) {
   const actividadInicial = actividadSeleccionada(actividades, valores.id_actividad);
@@ -184,6 +186,13 @@ export default function InscripcionCampos({
           </div>
         </div>
       )}
+
+      {precio !== undefined ? (
+        <div className="usuario-form-field">
+          <label htmlFor="inscripcion-precio">Precio inscripción</label>
+          <input id="inscripcion-precio" name="precioAplicado" value={precio} readOnly disabled />
+        </div>
+      ) : null}
 
       <div className="usuario-form-field usuario-form-field-full">
         <label htmlFor={idComentario}>Comentarios</label>

@@ -1,3 +1,4 @@
+import { textoFechaInscripcion } from "../../utils/fechaCalendario";
 import { nombreMetodoPago, textoFechaPago } from "../../utils/pagosListado";
 import type { CampoOrdenInscripcion } from "../../utils/inscripcionesListado";
 import { nombreEstadoPago } from "../../utils/estadoPagoInscripcion";
@@ -40,6 +41,20 @@ function claseEstadoPago(nombre: string): string {
     default:
       return "inscripciones-estado-desconocido";
   }
+}
+
+function FechaPagoCaja({ valor }: { valor: string | null }) {
+  if (!valor) return "Sin fecha";
+  const texto = textoFechaInscripcion(valor);
+  const partes = /^(\d{2}\/\d{2}\/)(\d{2})(\d{2})$/.exec(texto);
+  if (!partes) return textoFechaPago(valor);
+  return (
+    <>
+      {partes[1]}
+      <span className="caja-fecha-siglo">{partes[2]}</span>
+      {partes[3]}
+    </>
+  );
 }
 
 function formatearFecha(fecha: string): string {
@@ -98,7 +113,7 @@ export default function InscripcionesTable({
           <th>Estado pago</th>
           {cabeceraOrden("fecha", "Fecha inscripción")}
           <th>Método de pago</th>
-          {cabeceraOrden("fechaPago", "Fecha de pago")}
+          {cabeceraOrden("fechaPago", "Fecha pago")}
         </tr>
       </thead>
       <tbody>
@@ -136,7 +151,7 @@ export default function InscripcionesTable({
             </td>
             <td>{formatearFecha(inscripcion.apuntadoFecha)}</td>
             <td>{nombreMetodoPago(inscripcion.id_metodo_pago, metodosPago)}</td>
-            <td>{textoFechaPago(inscripcion.fechaPago)}</td>
+            <td><FechaPagoCaja valor={inscripcion.fechaPago} /></td>
           </tr>
         ))}
       </tbody>

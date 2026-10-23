@@ -1,6 +1,7 @@
 import { usePreferenciaSesion } from "../hooks/usePreferenciaSesion";
 import FiltroEstado from "../components/FiltroEstado";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { hasPermission } from "../auth/permissions";
 import { useRole } from "../auth/useRole";
 import { getActividades } from "../services/actividadService";
@@ -12,14 +13,23 @@ import buscarIcono from "../assets/icons/navigation/buscar.webp";
 import "./ActividadesPage.css";
 import ActividadFormModal from "../components/actividades/ActividadFormModal";
 import ActividadesTable from "../components/actividades/ActividadesTable";
-import Paginacion, { REGISTROS_POR_PAGINA } from "../components/Paginacion";
+import Paginacion, { useRegistrosPorPagina } from "../components/Paginacion";
 import {
   filtrarActividades,
   ordenarActividades,
   type CampoOrden,
   type DireccionOrden,
 } from "../utils/actividadesListado";
+
+function idActividadNavegacion(state: unknown): number | null {
+  if (!state || typeof state !== "object" || !("abrirActividad" in state)) return null;
+  const id = (state as { abrirActividad: unknown }).abrirActividad;
+  return typeof id === "number" && Number.isInteger(id) ? id : null;
+}
+
 export default function ActividadesPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const role = useRole();
   const puedeGestionar = hasPermission(role, "gestionarActividades");
   const [formulario, setFormulario] = useState<{ actividad?: Actividad } | null>(null);
@@ -29,8 +39,20 @@ export default function ActividadesPage() {
   const [campoOrden, setCampoOrden] = usePreferenciaSesion<CampoOrden>("actividades.campoOrden", "fecha", ["titulo", "fecha"]);
   const [direccionOrden, setDireccionOrden] = usePreferenciaSesion<DireccionOrden>("actividades.direccionOrden", "desc", ["asc", "desc"]);
   const [pagina, setPagina] = usePreferenciaSesion<number>("actividades.pagina", 1);
+  const registrosPorPagina = useRegistrosPorPagina();
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const idDestino = idActividadNavegacion(location.state);
+  const actividadDestino = idDestino == null
+    ? null
+    : actividades.find((actividad) => actividad.id_actividad === idDestino) ?? null;
+  const formularioVisible = formulario ?? (actividadDestino ? { actividad: actividadDestino } : null);
+
+  useEffect(() => {
+    if (idDestino == null || cargando || actividadDestino) return;
+    navigate("/actividades", { replace: true, state: null });
+  }, [idDestino, cargando, actividadDestino, navigate]);
+
   useEffect(() => {
     let activo = true;
     getActividades()
@@ -64,14 +86,19 @@ export default function ActividadesPage() {
   );
   const totalPaginas = Math.max(
     1,
-    Math.ceil(actividadesOrdenadas.length / REGISTROS_POR_PAGINA),
+    Math.ceil(actividadesOrdenadas.length / registrosPorPagina),
   );
   const paginaActual = Math.min(pagina, totalPaginas);
-  const inicioPagina = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+  const inicioPagina = (paginaActual - 1) * registrosPorPagina;
   const actividadesPagina = actividadesOrdenadas.slice(
     inicioPagina,
-    inicioPagina + REGISTROS_POR_PAGINA,
+    inicioPagina + registrosPorPagina,
   );
+  function cerrarFormulario() {
+    setFormulario(null);
+    if (idDestino != null) navigate("/actividades", { replace: true, state: null });
+  }
+
   function cambiarOrden(campo: CampoOrden) {
     if (campoOrden === campo) {
       setDireccionOrden((direccionActual) =>
@@ -209,11 +236,11 @@ export default function ActividadesPage() {
           onCambiar={setPagina}
         />
       ) : null}
-      {formulario && (
-        <ActividadFormModal actividad={formulario.actividad}
-          onClose={() => setFormulario(null)}
+      {formularioVisible && (
+        <ActividadFormModal actividad={formularioVisible.actividad}
+          onClose={cerrarFormulario}
           onSaved={() => {
-            setFormulario(null);
+            cerrarFormulario();
             getActividades()
               .then((datos) => setActividades(datos))
               .catch((causa) => {

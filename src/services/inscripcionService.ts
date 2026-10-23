@@ -1,5 +1,5 @@
 import type { Inscripcion } from "../types/inscripcion";
-import type { InscripcionComentarioPayload, InscripcionPayload } from "../utils/inscripcionFormPayload";
+import type { InscripcionComentarioPayload, InscripcionEdicionPayload, InscripcionPayload } from "../utils/inscripcionFormPayload";
 import type { DevolucionInscripcionPayload, PagoInscripcionPayload } from "../utils/pagoInscripcionPayload";
 import type { ErroresInscripcion } from "../utils/validacionesInscripcion";
 import { authenticatedFetch } from "./authService";
@@ -103,7 +103,10 @@ export async function getInscripciones(): Promise<Inscripcion[]> {
   return response.json();
 }
 
-export async function updateInscripcion(id: number, datos: InscripcionComentarioPayload): Promise<void> {
+export async function updateInscripcion(
+  id: number,
+  datos: InscripcionEdicionPayload | InscripcionComentarioPayload,
+): Promise<void> {
   const response = await authenticatedFetch(`/inscripciones/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

@@ -73,7 +73,7 @@ test("Usuario, operador y administrador abren el alta; solo la gestión elige us
     assert.match(modal, /Buscar actividad/);
     assert.match(modal, /Código actividad/);
     assert.match(modal, /Comentarios/);
-    assert.match(modal, /Cancelar/);
+    assert.doesNotMatch(modal, />Cancelar</);
     assert.match(modal, /Cerrar modal/);
     assert.match(modal, /Crear inscripción/);
     assert.match(modal, /disabled/);
@@ -128,16 +128,20 @@ test("La edición precarga usuario, actividad y comentario sin campos económico
       onEditada: () => undefined,
     }));
 
-    assert.match(html, /Editar inscripción/);
+    assert.match(html, />Inscripción</);
+    assert.doesNotMatch(html, /Editar inscripción/);
     assert.match(html, /Ana García López/);
     assert.match(html, /Taller de cerámica/);
     assert.match(html, /Nota inicial/);
-    assert.match(html, /Guardar cambios/);
-    assert.match(html, />Cerrar</);
+    assert.match(html, />Editar</);
+    assert.doesNotMatch(html, /Guardar cambios/);
+    assert.doesNotMatch(html, />Cerrar</);
+    assert.match(html, /Precio inscripción/);
+    assert.match(html, /25\.00 €/);
+    assert.match(html, /<input[^>]*name="precioAplicado"[^>]*readOnly|<input[^>]*readOnly[^>]*name="precioAplicado"/);
     assert.match(html, /disabled/);
     assert.doesNotMatch(html, /Selecciona un usuario/);
     assert.doesNotMatch(html, /Selecciona una actividad/);
-    assert.doesNotMatch(html, /Precio/);
     assert.doesNotMatch(html, /Estado de pago/);
     assert.doesNotMatch(html, /Método de pago/);
     assert.doesNotMatch(html, /Fecha de pago/);
@@ -149,8 +153,7 @@ test("La edición precarga usuario, actividad y comentario sin campos económico
     onClose: () => undefined,
     onEditada: () => undefined,
   }));
-  const boton = html.match(/<button type="submit"[^>]*>/)?.[0] ?? "";
-  assert.match(boton, /disabled/);
+  assert.doesNotMatch(html, />Editar</);
   assert.match(html.match(/<textarea[^>]*>/)?.[0] ?? "", /disabled/);
   assert.doesNotMatch(html, /Registrar pago/);
 });
